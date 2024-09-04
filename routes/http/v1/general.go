@@ -1,15 +1,13 @@
 package routes_http_v1
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+
+	pingPongController_v1 "first-project/first-project/controller/v1"
 )
 
 func SetupGneralRoutes(routerGroup *gin.RouterGroup) *gin.RouterGroup {
-	routerGroup.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
-	})
+	routerGroup.GET("/ping", pingPongController_v1.Pong)
 
 	return routerGroup
 }
