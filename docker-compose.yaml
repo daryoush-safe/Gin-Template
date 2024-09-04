@@ -1,0 +1,15 @@
+services:
+  database:
+    image: mysql:9.0.1-oracle
+    ports:
+      - ${DB_PORT:-3306}:3306
+    environment:
+      - MYSQL_DATABASE=${DB_NAME:-database}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASS:-root}
+      - MYSQL_USER=${DB_USER:-username}
+      - MYSQL_PASSWORD=${DB_PASS:-password}
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
