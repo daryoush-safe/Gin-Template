@@ -1,7 +1,7 @@
 package routes
 
 import (
-	routes_http_v1 "first-project/first-project/routes/http/v1"
+	routes_http_v1 "first-project/routes/http/v1"
 
 	"github.com/gin-gonic/gin"
 )
