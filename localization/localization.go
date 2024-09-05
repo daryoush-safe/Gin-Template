@@ -61,13 +61,33 @@ func loadTranslations(filePath string) (map[string]string, error) {
 		return nil, err
 	}
 
-	var translations map[string]string
-	err = json.Unmarshal(bytes, &translations)
+	var jsonData map[string]interface{}
+	err = json.Unmarshal(bytes, &jsonData)
 	if err != nil {
 		return nil, err
 	}
 
-	translationMap[filePath] = translations
+	flattenedTranslations := make(map[string]string)
+	flattenMap("", jsonData, flattenedTranslations)
 
-	return translations, nil
+	translationMap[filePath] = flattenedTranslations
+
+	return flattenedTranslations, nil
+}
+
+func flattenMap(prefix string, input map[string]interface{}, output map[string]string) {
+	for k, v := range input {
+		fullKey := k
+		if prefix != "" {
+			fullKey = prefix + "." + k
+		}
+		switch value := v.(type) {
+		case map[string]interface{}:
+			flattenMap(fullKey, value, output)
+		case string:
+			output[fullKey] = value
+		default:
+			// Handle other types as needed, e.g., numbers, booleans, etc.
+		}
+	}
 }

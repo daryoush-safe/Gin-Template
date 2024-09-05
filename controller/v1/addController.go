@@ -17,11 +17,6 @@ type AddParams struct {
 }
 
 func Add(c *gin.Context) {
-	// paramsValidation, errorMsg := validation.ValidateNumber(c)
-	// if !paramsValidation {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": errorMsg})
-	// 	return
-	// }
 	controller.Validated[AddParams](c)
 
 	num1, _ := strconv.Atoi(c.Param("num1"))

@@ -32,5 +32,7 @@ func handleValidationError(c *gin.Context, validationErrors validator.Validation
 
 func unhandledErrors(c *gin.Context, err error) {
 	log.Println(err.Error())
-	c.String(500, "error")
+	trans := localization.GetTranslator()
+	errorMessage, _ := trans.T("errors.generic")
+	c.String(500, errorMessage)
 }

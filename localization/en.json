@@ -1,4 +1,7 @@
 {
+    "errors": {
+        "generic": "an error occurred, please try again."
+    },
     "validation error": "input data is invalid!",
     "unhandled error": "system is busy now, try again later."
 }
