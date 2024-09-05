@@ -16,8 +16,7 @@ func Validated[T any](c *gin.Context) T {
 	var validate *validator.Validate = validator.New()
 
 	trans := localization.GetTranslator()
-	locale := localization.GetLocale(c.Request)
-	if locale == "fa_IR" {
+	if trans.Locale() == "fa_IR" {
 		fa.RegisterDefaultTranslations(validate, trans)
 	} else {
 		en.RegisterDefaultTranslations(validate, trans)

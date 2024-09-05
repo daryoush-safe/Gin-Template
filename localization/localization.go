@@ -2,11 +2,12 @@ package localization
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 
-	"github.com/go-playground/locales/en"
+	"github.com/go-playground/locales/en_US"
 	"github.com/go-playground/locales/fa_IR"
 	ut "github.com/go-playground/universal-translator"
 )
@@ -17,54 +18,70 @@ var (
 )
 
 func Register(request *http.Request) {
-	var universalTranslator *ut.UniversalTranslator
-	en := en.New()
-	universalTranslator = ut.New(en, fa_IR.New())
+	universalTranslator := createUniversalTranslator()
+	loadAndAddTranslations(universalTranslator)
 
-	farsi, _ := universalTranslator.GetTranslator("fa_IR")
-	farsiMap, _ := loadTranslations("localization/fa.json")
-	for key, translation := range farsiMap {
-		farsi.Add(key, translation, true)
+	locale := getLocale(request)
+	localTranslator, found := universalTranslator.GetTranslator(locale)
+	if !found {
+		localTranslator, _ = universalTranslator.GetTranslator("fa_IR")
 	}
 
-	english, _ := universalTranslator.GetTranslator("en")
-	englishMap, _ := loadTranslations("localization/en.json")
-	for key, translation := range englishMap {
-		english.Add(key, translation, true)
+	translator = localTranslator
+}
+
+func createUniversalTranslator() *ut.UniversalTranslator {
+	en := en_US.New()
+	fa := fa_IR.New()
+	return ut.New(en, en, fa)
+}
+
+func loadAndAddTranslations(universalTranslator *ut.UniversalTranslator) {
+	addTranslations("fa_IR", "localization/fa.json", universalTranslator)
+	addTranslations("en_US", "localization/en.json", universalTranslator)
+}
+
+func addTranslations(locale, filePath string, universalTranslator *ut.UniversalTranslator) {
+	translator, found := universalTranslator.GetTranslator(locale)
+	if !found {
+		panic(fmt.Sprintf("translator for locale %s not found", locale))
 	}
 
-	locale := GetLocale(request)
-	translator, _ = universalTranslator.GetTranslator(locale)
+	translations := loadTranslations(filePath)
+
+	for key, translation := range translations {
+		translator.Add(key, translation, true)
+	}
 }
 
 func GetTranslator() ut.Translator {
 	return translator
 }
 
-func GetLocale(request *http.Request) string {
+func getLocale(request *http.Request) string {
 	return request.Header.Get("Accept-Language")
 }
 
-func loadTranslations(filePath string) (map[string]string, error) {
+func loadTranslations(filePath string) map[string]string {
 	if translations, ok := translationMap[filePath]; ok {
-		return translations, nil
+		return translations
 	}
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	defer file.Close()
 
 	bytes, err := io.ReadAll(file)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	var jsonData map[string]interface{}
 	err = json.Unmarshal(bytes, &jsonData)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	flattenedTranslations := make(map[string]string)
@@ -72,7 +89,7 @@ func loadTranslations(filePath string) (map[string]string, error) {
 
 	translationMap[filePath] = flattenedTranslations
 
-	return flattenedTranslations, nil
+	return flattenedTranslations
 }
 
 func flattenMap(prefix string, input map[string]interface{}, output map[string]string) {
