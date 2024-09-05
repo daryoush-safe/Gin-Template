@@ -2,7 +2,7 @@ package controller_v1
 
 import (
 	"first-project/application"
-	"first-project/validation"
+	"first-project/controller"
 
 	"strconv"
 
@@ -11,12 +11,18 @@ import (
 	"net/http"
 )
 
+type AddParams struct {
+	Num1 string `uri:"num1" validate:"required,numeric"`
+	Num2 string `uri:"num2" validate:"required,numeric"`
+}
+
 func Add(c *gin.Context) {
-	paramsValidation := validation.ValidateNunmber(c)
-	if !paramsValidation {
-		// c.JSON(http.StatusBadRequest, gin.H{"error": "Parameters must be numeric"})
-		return
-	}
+	// paramsValidation, errorMsg := validation.ValidateNumber(c)
+	// if !paramsValidation {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": errorMsg})
+	// 	return
+	// }
+	controller.Validated[AddParams](c)
 
 	num1, _ := strconv.Atoi(c.Param("num1"))
 	num2, _ := strconv.Atoi(c.Param("num2"))

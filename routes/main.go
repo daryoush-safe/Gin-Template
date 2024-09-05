@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"first-project/middleware"
 	routes_http_v1 "first-project/routes/http/v1"
 
 	"github.com/gin-gonic/gin"
@@ -8,6 +9,8 @@ import (
 
 func Run() *gin.Engine {
 	ginEngine := gin.Default()
+
+	ginEngine.Use(middleware.ExceptionHandler)
 	v1 := ginEngine.Group("/v1")
 
 	v1 = registerGeneralRoutes(v1)
