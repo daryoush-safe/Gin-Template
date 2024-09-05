@@ -12,7 +12,7 @@ import (
 )
 
 type AddParams struct {
-	Num1 string `uri:"num1" validate:"required,numeric"`
+	Num1 string `uri:"num1" validate:"required,numeric,gt=10"`
 	Num2 string `uri:"num2" validate:"required,numeric"`
 }
 

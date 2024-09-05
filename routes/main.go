@@ -9,8 +9,9 @@ import (
 
 func Run() *gin.Engine {
 	ginEngine := gin.Default()
-
+	ginEngine.Use(middleware.Localization)
 	ginEngine.Use(middleware.ExceptionHandler)
+
 	v1 := ginEngine.Group("/v1")
 
 	v1 = registerGeneralRoutes(v1)

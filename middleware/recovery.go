@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"first-project/localization"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,6 @@ import (
 
 func ExceptionHandler(c *gin.Context) {
 	defer func() {
-		// Catch panic (if any) and handle it as an error
 		if rec := recover(); rec != nil {
 			if err, ok := rec.(error); ok {
 				if validationErrors, ok := err.(validator.ValidationErrors); ok {
@@ -20,15 +20,14 @@ func ExceptionHandler(c *gin.Context) {
 			}
 		}
 	}()
-	// Call the next handler in the chain
+
 	c.Next()
 }
 
 func handleValidationError(c *gin.Context, validationErrors validator.ValidationErrors) {
-	for _, validationError := range validationErrors {
-		log.Println(validationError.Error())
-		c.String(422, validationError.Error())
-	}
+	trans := localization.GetTranslator()
+
+	c.JSON(422, validationErrors.Translate(trans))
 }
 
 func unhandledErrors(c *gin.Context, err error) {
