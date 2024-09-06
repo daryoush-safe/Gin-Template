@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"first-project/src/exceptions"
 	"first-project/src/localization"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -26,15 +26,18 @@ func Validated[T any](c *gin.Context) T {
 
 	var params T
 	if err := c.ShouldBindUri(&params); err != nil {
-		fmt.Println("error")
+		bindingError := exceptions.BindingError{Err: err}
+		panic(bindingError)
 	}
 
 	if err := c.ShouldBindQuery(&params); err != nil {
-		fmt.Println("error")
+		bindingError := exceptions.BindingError{Err: err}
+		panic(bindingError)
 	}
 
 	if err := c.ShouldBind(&params); err != nil {
-		fmt.Println("error")
+		bindingError := exceptions.BindingError{Err: err}
+		panic(bindingError)
 	}
 
 	if err := validate.Struct(params); err != nil {

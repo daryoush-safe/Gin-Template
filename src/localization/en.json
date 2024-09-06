@@ -1,6 +1,7 @@
 {
     "errors": {
-        "generic": "an error occurred, please try again."
+        "generic": "an error occurred, please try again.",
+        "numeric": "The `{0}` should be a numeric value."
     },
     "validation error": "input data is invalid!",
     "unhandled error": "system is busy now, try again later."
