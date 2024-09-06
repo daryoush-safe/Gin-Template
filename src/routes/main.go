@@ -10,7 +10,7 @@ import (
 func Run() *gin.Engine {
 	ginEngine := gin.Default()
 	ginEngine.Use(middleware.Localization)
-	ginEngine.Use(middleware.ExceptionHandler)
+	ginEngine.Use(middleware.Recovery)
 
 	v1 := ginEngine.Group("/v1")
 
