@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 
-	"first-project/routes"
+	"first-project/src/routes"
 )
 
 func main() {

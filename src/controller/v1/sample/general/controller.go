@@ -1,8 +1,8 @@
-package controller_v1
+package controller_v1_sample_general
 
 import (
-	"first-project/application"
-	"first-project/controller"
+	application_math "first-project/src/application/math"
+	"first-project/src/controller"
 
 	"strconv"
 
@@ -11,17 +11,12 @@ import (
 	"net/http"
 )
 
-type AddParams struct {
-	Num1 string `uri:"num1" validate:"required,numeric,gt=10"`
-	Num2 string `uri:"num2" validate:"required,numeric"`
-}
-
 func Add(c *gin.Context) {
 	controller.Validated[AddParams](c)
 
 	num1, _ := strconv.Atoi(c.Param("num1"))
 	num2, _ := strconv.Atoi(c.Param("num2"))
 
-	sum := application.Add(num1, num2)
+	sum := application_math.Add(num1, num2)
 	c.String(http.StatusOK, strconv.Itoa(sum))
 }

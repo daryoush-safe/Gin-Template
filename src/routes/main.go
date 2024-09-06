@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"first-project/middleware"
-	routes_http_v1 "first-project/routes/http/v1"
+	"first-project/src/middleware"
+	routes_http_v1 "first-project/src/routes/http/v1"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +21,7 @@ func Run() *gin.Engine {
 }
 
 func registerGeneralRoutes(v1 *gin.RouterGroup) *gin.RouterGroup {
-	return routes_http_v1.SetupGneralRoutes(v1)
+	return routes_http_v1.SetupGeneralRoutes(v1)
 }
 
 func registerCustomerRoutes(v1 *gin.RouterGroup) *gin.RouterGroup {

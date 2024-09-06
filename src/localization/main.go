@@ -37,8 +37,8 @@ func createUniversalTranslator() *ut.UniversalTranslator {
 }
 
 func loadAndAddTranslations(universalTranslator *ut.UniversalTranslator) {
-	addTranslations("fa_IR", "localization/fa.json", universalTranslator)
-	addTranslations("en_US", "localization/en.json", universalTranslator)
+	addTranslations("fa_IR", "src/localization/fa.json", universalTranslator)
+	addTranslations("en_US", "src/localization/en.json", universalTranslator)
 }
 
 func addTranslations(locale, filePath string, universalTranslator *ut.UniversalTranslator) {

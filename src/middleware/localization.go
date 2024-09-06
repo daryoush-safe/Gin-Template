@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"first-project/localization"
+	"first-project/src/localization"
 
 	"github.com/gin-gonic/gin"
 )
