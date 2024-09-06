@@ -31,11 +31,13 @@ func Recovery(c *gin.Context) {
 
 func handleValidationError(c *gin.Context, validationErrors validator.ValidationErrors) {
 	trans := localization.GetTranslator()
+	errorsMessages := make(map[string]string)
 
-	c.JSON(422, controller.ValidationResponse{
-		Status:   422,
-		Messages: validationErrors.Translate(trans),
-	})
+	for _, validationError := range validationErrors {
+		errorsMessages[validationError.Field()] = validationError.Translate(trans)
+	}
+
+	controller.Response(c, 422, errorsMessages, nil)
 }
 
 func handleBindingError(c *gin.Context, bindingError exceptions.BindingError) {
@@ -46,11 +48,7 @@ func handleBindingError(c *gin.Context, bindingError exceptions.BindingError) {
 		message, _ = trans.T("errors.numeric", numError.Num)
 	}
 
-	c.JSON(400, controller.Response{
-		Status:  400,
-		Message: message,
-		Data:    nil,
-	})
+	controller.Response(c, 400, message, nil)
 }
 
 func unhandledErrors(c *gin.Context, err error) {
@@ -58,9 +56,5 @@ func unhandledErrors(c *gin.Context, err error) {
 	trans := localization.GetTranslator()
 	errorMessage, _ := trans.T("errors.generic")
 
-	c.JSON(500, controller.Response{
-		Status:  500,
-		Message: errorMessage,
-		Data:    nil,
-	})
+	controller.Response(c, 500, errorMessage, nil)
 }
