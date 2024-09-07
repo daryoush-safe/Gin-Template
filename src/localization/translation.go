@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 
 	"github.com/go-playground/locales/en_US"
@@ -12,22 +11,18 @@ import (
 	ut "github.com/go-playground/universal-translator"
 )
 
-var (
-	translationMap = make(map[string]map[string]string)
-	translator     ut.Translator
-)
+var translationMap = make(map[string]map[string]string)
 
-func Register(request *http.Request) {
+func GetTranslator(locale string) ut.Translator {
 	universalTranslator := createUniversalTranslator()
 	loadAndAddTranslations(universalTranslator)
 
-	locale := getLocale(request)
-	localTranslator, found := universalTranslator.GetTranslator(locale)
+	translator, found := universalTranslator.GetTranslator(locale)
 	if !found {
-		localTranslator, _ = universalTranslator.GetTranslator("fa_IR")
+		translator, _ = universalTranslator.GetTranslator("fa_IR")
 	}
 
-	translator = localTranslator
+	return translator
 }
 
 func createUniversalTranslator() *ut.UniversalTranslator {
@@ -52,14 +47,6 @@ func addTranslations(locale, filePath string, universalTranslator *ut.UniversalT
 	for key, translation := range translations {
 		translator.Add(key, translation, true)
 	}
-}
-
-func GetTranslator() ut.Translator {
-	return translator
-}
-
-func getLocale(request *http.Request) string {
-	return request.Header.Get("Accept-Language")
 }
 
 func loadTranslations(filePath string) map[string]string {
