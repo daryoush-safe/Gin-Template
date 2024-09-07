@@ -1,7 +1,8 @@
 package routes
 
 import (
-	"first-project/src/middleware"
+	middleware_exceptions "first-project/src/middleware/exceptions"
+	middleware_i18n "first-project/src/middleware/i18n"
 	routes_http_v1 "first-project/src/routes/http/v1"
 
 	"github.com/gin-gonic/gin"
@@ -9,8 +10,8 @@ import (
 
 func Run() *gin.Engine {
 	ginEngine := gin.Default()
-	ginEngine.Use(middleware.Localization)
-	ginEngine.Use(middleware.Recovery)
+	ginEngine.Use(middleware_i18n.Localization)
+	ginEngine.Use(middleware_exceptions.Recovery)
 
 	v1 := ginEngine.Group("/v1")
 

@@ -1,9 +1,9 @@
-package middleware
+package middleware_exceptions
 
 import (
 	"first-project/src/controller"
 	"first-project/src/exceptions"
-	"first-project/src/localization"
+	middleware_i18n "first-project/src/middleware/i18n"
 	"log"
 	"strconv"
 
@@ -30,7 +30,7 @@ func Recovery(c *gin.Context) {
 }
 
 func handleValidationError(c *gin.Context, validationErrors validator.ValidationErrors) {
-	trans := localization.GetTranslator()
+	trans := middleware_i18n.GetTranslator(c)
 	errorsMessages := make(map[string]string)
 
 	for _, validationError := range validationErrors {
@@ -41,7 +41,7 @@ func handleValidationError(c *gin.Context, validationErrors validator.Validation
 }
 
 func handleBindingError(c *gin.Context, bindingError exceptions.BindingError) {
-	trans := localization.GetTranslator()
+	trans := middleware_i18n.GetTranslator(c)
 	message, _ := trans.T("errors.generic")
 
 	if numError, ok := bindingError.Err.(*strconv.NumError); ok {
@@ -53,7 +53,7 @@ func handleBindingError(c *gin.Context, bindingError exceptions.BindingError) {
 
 func unhandledErrors(c *gin.Context, err error) {
 	log.Println(err.Error())
-	trans := localization.GetTranslator()
+	trans := middleware_i18n.GetTranslator(c)
 	errorMessage, _ := trans.T("errors.generic")
 
 	controller.Response(c, 500, errorMessage, nil)
