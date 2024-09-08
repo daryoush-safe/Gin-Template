@@ -5,7 +5,6 @@ import (
 	middleware_i18n "first-project/src/middleware/i18n"
 
 	"github.com/gin-gonic/gin"
-	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/go-playground/validator/v10/translations/en"
 	"github.com/go-playground/validator/v10/translations/fa"
@@ -13,17 +12,24 @@ import (
 
 var validate *validator.Validate = validator.New()
 
-func setupTranslation(trans ut.Translator) {
-	if trans.Locale() == "fa_IR" {
-		fa.RegisterDefaultTranslations(validate, trans)
-	} else {
-		en.RegisterDefaultTranslations(validate, trans)
+func setupTranslation(c *gin.Context) {
+	trans := middleware_i18n.GetTranslator(c)
+	key := "isLoadedValidationTranslator"
+
+	_, exists := c.Get(key)
+	if !exists {
+		if trans.Locale() == "fa_IR" {
+			fa.RegisterDefaultTranslations(validate, trans)
+		} else {
+			en.RegisterDefaultTranslations(validate, trans)
+		}
+
+		c.Set(key, true)
 	}
 }
 
 func Validated[T any](c *gin.Context) T {
-	translator := middleware_i18n.GetTranslator(c)
-	setupTranslation(translator)
+	setupTranslation(c)
 
 	var params T
 	if err := c.ShouldBindUri(&params); err != nil {
