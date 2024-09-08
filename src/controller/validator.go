@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"first-project/src/bootstrap"
 	"first-project/src/exceptions"
-	middleware_i18n "first-project/src/middleware/i18n"
 
 	"github.com/gin-gonic/gin"
 	ut "github.com/go-playground/universal-translator"
@@ -21,9 +21,8 @@ func setupTranslation(trans ut.Translator) {
 	}
 }
 
-func Validated[T any](c *gin.Context) T {
-	translator := middleware_i18n.GetTranslator(c)
-	setupTranslation(translator)
+func Validated[T any](c *gin.Context, constants *bootstrap.Context) T {
+	setupTranslation(GetTranslator(c, constants.Translator))
 
 	var params T
 	if err := c.ShouldBindUri(&params); err != nil {

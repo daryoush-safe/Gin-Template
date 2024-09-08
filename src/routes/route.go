@@ -10,8 +10,11 @@ import (
 )
 
 func Run(ginEngine *gin.Engine, di *bootstrap.Di) {
-	ginEngine.Use(middleware_i18n.Localization)
-	ginEngine.Use(middleware_exceptions.Recovery)
+	localizationMiddleware := middleware_i18n.NewLocalization(di.Constants)
+	recoveryMiddleware := middleware_exceptions.NewRecovery(di.Constants)
+
+	ginEngine.Use(localizationMiddleware.Localization)
+	ginEngine.Use(recoveryMiddleware.Recovery)
 
 	v1 := ginEngine.Group("/v1")
 

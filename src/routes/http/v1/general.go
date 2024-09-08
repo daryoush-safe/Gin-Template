@@ -8,9 +8,7 @@ import (
 )
 
 func SetupGeneralRoutes(routerGroup *gin.RouterGroup, di *bootstrap.Di) *gin.RouterGroup {
-	sampleController := &controller_v1_general.SampleController{
-		Constants: di.Constants,
-	}
+	sampleController := controller_v1_general.NewSampleController(di.Constants)
 
 	routerGroup.GET("/ping", controller_v1_general.Pong)
 	routerGroup.GET("/add/:num1/:num2", sampleController.Add)
