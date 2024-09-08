@@ -12,10 +12,10 @@ import (
 )
 
 type RecoveryMiddleware struct {
-	constants *bootstrap.Constants
+	constants *bootstrap.Context
 }
 
-func NewRecovery(constants *bootstrap.Constants) *RecoveryMiddleware {
+func NewRecovery(constants *bootstrap.Context) *RecoveryMiddleware {
 	return &RecoveryMiddleware{
 		constants: constants,
 	}
@@ -26,11 +26,11 @@ func (recovery RecoveryMiddleware) Recovery(c *gin.Context) {
 		if rec := recover(); rec != nil {
 			if err, ok := rec.(error); ok {
 				if validationErrors, ok := err.(validator.ValidationErrors); ok {
-					handleValidationError(c, validationErrors, recovery.constants.Context.Translator)
+					handleValidationError(c, validationErrors, recovery.constants.Translator)
 				} else if bindingError, ok := err.(exceptions.BindingError); ok {
-					handleBindingError(c, bindingError, recovery.constants.Context.Translator)
+					handleBindingError(c, bindingError, recovery.constants.Translator)
 				} else {
-					unhandledErrors(c, err, recovery.constants.Context.Translator)
+					unhandledErrors(c, err, recovery.constants.Translator)
 				}
 
 				c.Abort()
