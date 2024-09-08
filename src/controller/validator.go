@@ -5,7 +5,6 @@ import (
 	"first-project/src/exceptions"
 
 	"github.com/gin-gonic/gin"
-	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/go-playground/validator/v10/translations/en"
 	"github.com/go-playground/validator/v10/translations/fa"
@@ -13,16 +12,23 @@ import (
 
 var validate *validator.Validate = validator.New()
 
-func setupTranslation(trans ut.Translator) {
-	if trans.Locale() == "fa_IR" {
-		fa.RegisterDefaultTranslations(validate, trans)
-	} else {
-		en.RegisterDefaultTranslations(validate, trans)
+func setupTranslation(c *gin.Context, constants *bootstrap.Context) {
+	trans := GetTranslator(c, constants.Translator)
+
+	_, exists := c.Get(constants.IsLoadedValidationTranslator)
+	if !exists {
+		if trans.Locale() == "fa_IR" {
+			fa.RegisterDefaultTranslations(validate, trans)
+		} else {
+			en.RegisterDefaultTranslations(validate, trans)
+		}
+
+		c.Set(constants.IsLoadedValidationTranslator, true)
 	}
 }
 
 func Validated[T any](c *gin.Context, constants *bootstrap.Context) T {
-	setupTranslation(GetTranslator(c, constants.Translator))
+	setupTranslation(c, constants)
 
 	var params T
 	if err := c.ShouldBindUri(&params); err != nil {
