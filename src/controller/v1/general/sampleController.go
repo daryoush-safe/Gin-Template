@@ -21,11 +21,11 @@ func NewSampleController(constants *bootstrap.Constants) *SampleController {
 }
 
 func (sample *SampleController) Add(c *gin.Context) {
-	type AddParams struct {
+	type addParams struct {
 		Num1 int `uri:"num1" validate:"required,number,gt=10"`
 		Num2 int `uri:"num2" validate:"required,number"`
 	}
-	param := controller.Validated[AddParams](c, &sample.constants.Context)
+	param := controller.Validated[addParams](c, &sample.constants.Context)
 
 	sum := application_math.Add(param.Num1, param.Num2)
 	c.String(http.StatusOK, strconv.Itoa(sum))
