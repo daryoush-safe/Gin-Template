@@ -1,15 +1,16 @@
 package routes_http_v1
 
 import (
-	"github.com/gin-gonic/gin"
+	"first-project/src/bootstrap"
+	controller_v1_general "first-project/src/controller/v1/general"
 
-	pingPongController_v1 "first-project/src/controller/v1"
+	"github.com/gin-gonic/gin"
 )
 
-func SetupCustomerRoutes(routerGroup *gin.RouterGroup) *gin.RouterGroup {
-	routerGroup.GET("/ping1", pingPongController_v1.Pong)
-	routerGroup.GET("/ping2", pingPongController_v1.Pong)
-	routerGroup.GET("/ping3", pingPongController_v1.Pong)
+func SetupCustomerRoutes(routerGroup *gin.RouterGroup, di *bootstrap.Di) *gin.RouterGroup {
+	routerGroup.GET("/ping1", controller_v1_general.Pong)
+	routerGroup.GET("/ping2", controller_v1_general.Pong)
+	routerGroup.GET("/ping3", controller_v1_general.Pong)
 
 	return routerGroup
 }

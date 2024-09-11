@@ -1,8 +1,8 @@
 package controller
 
 import (
+	"first-project/src/bootstrap"
 	"first-project/src/exceptions"
-	middleware_i18n "first-project/src/middleware/i18n"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -12,11 +12,10 @@ import (
 
 var validate *validator.Validate = validator.New()
 
-func setupTranslation(c *gin.Context) {
-	trans := middleware_i18n.GetTranslator(c)
-	key := "isLoadedValidationTranslator"
+func setupTranslation(c *gin.Context, constants *bootstrap.Context) {
+	trans := GetTranslator(c, constants.Translator)
 
-	_, exists := c.Get(key)
+	_, exists := c.Get(constants.IsLoadedValidationTranslator)
 	if !exists {
 		if trans.Locale() == "fa_IR" {
 			fa.RegisterDefaultTranslations(validate, trans)
@@ -24,12 +23,12 @@ func setupTranslation(c *gin.Context) {
 			en.RegisterDefaultTranslations(validate, trans)
 		}
 
-		c.Set(key, true)
+		c.Set(constants.IsLoadedValidationTranslator, true)
 	}
 }
 
-func Validated[T any](c *gin.Context) T {
-	setupTranslation(c)
+func Validated[T any](c *gin.Context, constants *bootstrap.Context) T {
+	setupTranslation(c, constants)
 
 	var params T
 	if err := c.ShouldBindUri(&params); err != nil {

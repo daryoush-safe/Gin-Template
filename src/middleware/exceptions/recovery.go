@@ -1,9 +1,9 @@
 package middleware_exceptions
 
 import (
+	"first-project/src/bootstrap"
 	"first-project/src/controller"
 	"first-project/src/exceptions"
-	middleware_i18n "first-project/src/middleware/i18n"
 	"log"
 	"strconv"
 
@@ -11,17 +11,29 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func Recovery(c *gin.Context) {
+type RecoveryMiddleware struct {
+	constants *bootstrap.Context
+}
+
+func NewRecovery(constants *bootstrap.Context) *RecoveryMiddleware {
+	return &RecoveryMiddleware{
+		constants: constants,
+	}
+}
+
+func (recovery RecoveryMiddleware) Recovery(c *gin.Context) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			if err, ok := rec.(error); ok {
 				if validationErrors, ok := err.(validator.ValidationErrors); ok {
-					handleValidationError(c, validationErrors)
+					handleValidationError(c, validationErrors, recovery.constants.Translator)
 				} else if bindingError, ok := err.(exceptions.BindingError); ok {
-					handleBindingError(c, bindingError)
+					handleBindingError(c, bindingError, recovery.constants.Translator)
 				} else {
-					unhandledErrors(c, err)
+					unhandledErrors(c, err, recovery.constants.Translator)
 				}
+
+				c.Abort()
 			}
 		}
 	}()
@@ -29,8 +41,8 @@ func Recovery(c *gin.Context) {
 	c.Next()
 }
 
-func handleValidationError(c *gin.Context, validationErrors validator.ValidationErrors) {
-	trans := middleware_i18n.GetTranslator(c)
+func handleValidationError(c *gin.Context, validationErrors validator.ValidationErrors, transKey string) {
+	trans := controller.GetTranslator(c, transKey)
 	errorsMessages := make(map[string]string)
 
 	for _, validationError := range validationErrors {
@@ -40,8 +52,8 @@ func handleValidationError(c *gin.Context, validationErrors validator.Validation
 	controller.Response(c, 422, errorsMessages, nil)
 }
 
-func handleBindingError(c *gin.Context, bindingError exceptions.BindingError) {
-	trans := middleware_i18n.GetTranslator(c)
+func handleBindingError(c *gin.Context, bindingError exceptions.BindingError, transKey string) {
+	trans := controller.GetTranslator(c, transKey)
 	message, _ := trans.T("errors.generic")
 
 	if numError, ok := bindingError.Err.(*strconv.NumError); ok {
@@ -51,9 +63,9 @@ func handleBindingError(c *gin.Context, bindingError exceptions.BindingError) {
 	controller.Response(c, 400, message, nil)
 }
 
-func unhandledErrors(c *gin.Context, err error) {
+func unhandledErrors(c *gin.Context, err error, transKey string) {
 	log.Println(err.Error())
-	trans := middleware_i18n.GetTranslator(c)
+	trans := controller.GetTranslator(c, transKey)
 	errorMessage, _ := trans.T("errors.generic")
 
 	controller.Response(c, 500, errorMessage, nil)

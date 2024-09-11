@@ -3,13 +3,15 @@ package routes_http_v1
 import (
 	"github.com/gin-gonic/gin"
 
-	controller_v1 "first-project/src/controller/v1"
-	controller_v1_sample_general "first-project/src/controller/v1/sample/general"
+	"first-project/src/bootstrap"
+	controller_v1_general "first-project/src/controller/v1/general"
 )
 
-func SetupGeneralRoutes(routerGroup *gin.RouterGroup) *gin.RouterGroup {
-	routerGroup.GET("/ping", controller_v1.Pong)
-	routerGroup.GET("/add/:num1/:num2", controller_v1_sample_general.Add)
+func SetupGeneralRoutes(routerGroup *gin.RouterGroup, di *bootstrap.Di) *gin.RouterGroup {
+	sampleController := controller_v1_general.NewSampleController(di.Constants)
+
+	routerGroup.GET("/ping", controller_v1_general.Pong)
+	routerGroup.GET("/add/:num1/:num2", sampleController.Add)
 
 	return routerGroup
 }
