@@ -1,8 +1,8 @@
 package middleware_i18n
 
 import (
-	"first-project/src/bootstrap"
-	"first-project/src/localization"
+	"gingool/src/bootstrap"
+	"gingool/src/localization"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

@@ -1,9 +1,9 @@
 package controller_v1_general
 
 import (
-	application_math "first-project/src/application/math"
-	"first-project/src/bootstrap"
-	"first-project/src/controller"
+	application_math "gingool/src/application/math"
+	"gingool/src/bootstrap"
+	"gingool/src/controller"
 	"net/http"
 	"strconv"
 

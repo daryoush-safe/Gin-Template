@@ -1,4 +1,4 @@
-module first-project
+module gingool
 
 go 1.23.0
 

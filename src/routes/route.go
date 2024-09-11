@@ -1,10 +1,10 @@
 package routes
 
 import (
-	"first-project/src/bootstrap"
-	middleware_exceptions "first-project/src/middleware/exceptions"
-	middleware_i18n "first-project/src/middleware/i18n"
-	routes_http_v1 "first-project/src/routes/http/v1"
+	"gingool/src/bootstrap"
+	middleware_exceptions "gingool/src/middleware/exceptions"
+	middleware_i18n "gingool/src/middleware/i18n"
+	routes_http_v1 "gingool/src/routes/http/v1"
 
 	"github.com/gin-gonic/gin"
 )

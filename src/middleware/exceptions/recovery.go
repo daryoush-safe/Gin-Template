@@ -1,9 +1,9 @@
 package middleware_exceptions
 
 import (
-	"first-project/src/bootstrap"
-	"first-project/src/controller"
-	"first-project/src/exceptions"
+	"gingool/src/bootstrap"
+	"gingool/src/controller"
+	"gingool/src/exceptions"
 	"log"
 	"strconv"
 

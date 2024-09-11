@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 
-	"first-project/src/bootstrap"
-	"first-project/src/routes"
+	"gingool/src/bootstrap"
+	"gingool/src/routes"
 )
 
 func main() {

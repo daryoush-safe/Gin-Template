@@ -1,8 +1,8 @@
 package routes_http_v1
 
 import (
-	"first-project/src/bootstrap"
-	controller_v1_general "first-project/src/controller/v1/general"
+	"gingool/src/bootstrap"
+	controller_v1_general "gingool/src/controller/v1/general"
 
 	"github.com/gin-gonic/gin"
 )

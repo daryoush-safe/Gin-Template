@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"first-project/src/bootstrap"
-	"first-project/src/exceptions"
+	"gingool/src/bootstrap"
+	"gingool/src/exceptions"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
