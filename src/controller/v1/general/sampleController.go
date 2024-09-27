@@ -11,12 +11,14 @@ import (
 )
 
 type SampleController struct {
-	constants *bootstrap.Constants
+	constants  *bootstrap.Constants
+	addService *application_math.AddService
 }
 
-func NewSampleController(constants *bootstrap.Constants) *SampleController {
+func NewSampleController(constants *bootstrap.Constants, addService *application_math.AddService) *SampleController {
 	return &SampleController{
-		constants: constants,
+		constants:  constants,
+		addService: addService,
 	}
 }
 
@@ -27,6 +29,6 @@ func (sample *SampleController) Add(c *gin.Context) {
 	}
 	param := controller.Validated[addParams](c, &sample.constants.Context)
 
-	sum := application_math.Add(param.Num1, param.Num2)
+	sum := sample.addService.Add(param.Num1, param.Num2)
 	c.String(http.StatusOK, strconv.Itoa(sum))
 }
