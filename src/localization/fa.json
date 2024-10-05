@@ -4,5 +4,13 @@
         "numeric": "`{0}` باید عدد باشد."
     },
     "validation error": "داده ورودی اشتباه است",
-    "unhandled error": "مشکلی پیش امده"
+    "unhandled error": "مشکلی پیش امده",
+    "user_registration": {
+        "username_exists": "نام کاربری از قبل وارد شده است.",
+        "email_exists": "ایمیل از قبل وارد شده است."
+    },
+    "containsLowercase": "باید حتما دارای حرف کوچک باشد.",
+    "containsUppercase": "باید حتما دارای حرف بزرگ باشد.",
+    "containsNumber": "باید حتما دارای عدد باشد.",
+    "containsSpecialChar": "باید حتما دارای حروف خاص باشد."
 }
