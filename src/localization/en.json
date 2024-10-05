@@ -3,6 +3,15 @@
         "generic": "an error occurred, please try again.",
         "numeric": "The `{0}` should be a numeric value."
     },
+    
     "validation error": "input data is invalid!",
-    "unhandled error": "system is busy now, try again later."
+    "unhandled error": "system is busy now, try again later.",
+    "user_registration": {
+        "username_exists": "Username already exists.",
+        "email_exists": "Email already exists."
+    },
+    "containsLowercase": "Field should contain lowercase.",
+    "containsUppercase": "Field should contain lowercase.",
+    "containsNumber": "Field should contain lowercase.",
+    "containsSpecialChar": "Field should contain lowercase."
 }

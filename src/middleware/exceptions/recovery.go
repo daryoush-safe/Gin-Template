@@ -29,6 +29,8 @@ func (recovery RecoveryMiddleware) Recovery(c *gin.Context) {
 					handleValidationError(c, validationErrors, recovery.constants.Translator)
 				} else if bindingError, ok := err.(exceptions.BindingError); ok {
 					handleBindingError(c, bindingError, recovery.constants.Translator)
+				} else if registrationError, ok := err.(exceptions.UserRegistrationError); ok {
+					handleRegistrationError(c, registrationError, recovery.constants.Translator)
 				} else {
 					unhandledErrors(c, err, recovery.constants.Translator)
 				}
@@ -61,6 +63,20 @@ func handleBindingError(c *gin.Context, bindingError exceptions.BindingError, tr
 	}
 
 	controller.Response(c, 400, message, nil)
+}
+
+func handleRegistrationError(c *gin.Context, registrationError exceptions.UserRegistrationError, transKey string) {
+	trans := controller.GetTranslator(c, transKey)
+	errorsMessages := make(map[string]string)
+	if registrationError.Username != "" {
+		message, _ := trans.T("user_registration.username_exists")
+		errorsMessages["username"] = message
+	}
+	if registrationError.Email != "" {
+		message, _ := trans.T("user_registration.email_exists")
+		errorsMessages["email"] = message
+	}
+	controller.Response(c, 422, errorsMessages, nil)
 }
 
 func unhandledErrors(c *gin.Context, err error, transKey string) {

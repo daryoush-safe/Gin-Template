@@ -3,8 +3,10 @@ package controller
 import (
 	"first-project/src/bootstrap"
 	"first-project/src/exceptions"
+	"first-project/src/validation"
 
 	"github.com/gin-gonic/gin"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	"github.com/go-playground/validator/v10/translations/en"
 	"github.com/go-playground/validator/v10/translations/fa"
@@ -12,7 +14,15 @@ import (
 
 var validate *validator.Validate = validator.New()
 
-func setupTranslation(c *gin.Context, constants *bootstrap.Context) {
+func setupCustomValidation(c *gin.Context, constants *bootstrap.Context, trans ut.Translator) {
+	_, exists := c.Get(constants.IsLoadedCustomValidationError)
+	if !exists {
+		validation.SetCustomValidators(validate, constants, trans)
+		c.Set(constants.IsLoadedCustomValidationError, true)
+	}
+}
+
+func setupTranslation(c *gin.Context, constants *bootstrap.Context) ut.Translator {
 	trans := GetTranslator(c, constants.Translator)
 
 	_, exists := c.Get(constants.IsLoadedValidationTranslator)
@@ -25,10 +35,12 @@ func setupTranslation(c *gin.Context, constants *bootstrap.Context) {
 
 		c.Set(constants.IsLoadedValidationTranslator, true)
 	}
+	return trans
 }
 
 func Validated[T any](c *gin.Context, constants *bootstrap.Context) T {
-	setupTranslation(c, constants)
+	trans := setupTranslation(c, constants)
+	setupCustomValidation(c, constants, trans)
 
 	var params T
 	if err := c.ShouldBindUri(&params); err != nil {
