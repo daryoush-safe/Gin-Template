@@ -13,12 +13,12 @@ type singleMessageResponse struct {
 }
 
 type multipleMessageResponse struct {
-	Status   int               `json:"statusCode"`
-	Messages map[string]string `json:"messages"`
-	Data     interface{}       `json:"data"`
+	Status   int                          `json:"statusCode"`
+	Messages map[string]map[string]string `json:"messages"`
+	Data     interface{}                  `json:"data"`
 }
 
-func Response[T string | map[string]string](c *gin.Context, statusCode int, message T, data interface{}) {
+func Response[T string | map[string]map[string]string](c *gin.Context, statusCode int, message T, data interface{}) {
 	statusText := http.StatusText(statusCode)
 	if statusText == "" {
 		panic("invalid status code!")
@@ -34,7 +34,7 @@ func Response[T string | map[string]string](c *gin.Context, statusCode int, mess
 			Message: msg,
 			Data:    data,
 		})
-	case map[string]string:
+	case map[string]map[string]string:
 		c.JSON(statusCode, multipleMessageResponse{
 			Status:   statusCode,
 			Messages: msg,
