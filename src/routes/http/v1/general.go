@@ -16,12 +16,12 @@ func SetupGeneralRoutes(routerGroup *gin.RouterGroup, di *bootstrap.Di, db *gorm
 	addService := application_math.NewAddService(userRepository)
 	sampleController := controller_v1_general.NewSampleController(di.Constants, addService)
 
-	userService := application.NewRegisterService(userRepository)
+	userService := application.NewUserService(di.Constants, userRepository)
 	userController := controller_v1_general.NewUserController(di.Constants, userService)
 
 	routerGroup.GET("/ping", controller_v1_general.Pong)
 	routerGroup.GET("/add/:num1/:num2", sampleController.Add)
-	routerGroup.POST("/register/:username/:email/:password", userController.Register)
+	routerGroup.POST("/register", userController.Register)
 
 	return routerGroup
 }

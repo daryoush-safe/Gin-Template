@@ -13,6 +13,8 @@ type Context struct {
 	Translator                    string
 	IsLoadedValidationTranslator  string
 	IsLoadedCustomValidationError string
+	AlreadyExist                  string
+	MinimumLength                 string
 	ContainsLowercase             string
 	ContainsUppercase             string
 	ContainsNumber                string
@@ -28,7 +30,9 @@ func NewConstants() *Constants {
 			Translator:                    "translator",
 			IsLoadedValidationTranslator:  "isLoadedValidationTranslator",
 			IsLoadedCustomValidationError: "isLoadedCustomValidationError",
+			AlreadyExist:                  "alreadyExist",
 			ContainsLowercase:             "containsLowercase",
+			MinimumLength:                 "minimumLength",
 			ContainsUppercase:             "containsUppercase",
 			ContainsNumber:                "containsNumber",
 			ContainsSpecialChar:           "containsSpecialChar",

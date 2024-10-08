@@ -29,8 +29,8 @@ func (recovery RecoveryMiddleware) Recovery(c *gin.Context) {
 					handleValidationError(c, validationErrors, recovery.constants.Translator)
 				} else if bindingError, ok := err.(exceptions.BindingError); ok {
 					handleBindingError(c, bindingError, recovery.constants.Translator)
-				} else if registrationError, ok := err.(exceptions.UserRegistrationError); ok {
-					handleRegistrationError(c, registrationError, recovery.constants.Translator)
+				} else if registrationErrors, ok := err.(exceptions.UserRegistrationError); ok {
+					handleRegistrationError(c, registrationErrors, recovery.constants.Translator)
 				} else {
 					unhandledErrors(c, err, recovery.constants.Translator)
 				}
@@ -45,13 +45,16 @@ func (recovery RecoveryMiddleware) Recovery(c *gin.Context) {
 
 func handleValidationError(c *gin.Context, validationErrors validator.ValidationErrors, transKey string) {
 	trans := controller.GetTranslator(c, transKey)
-	errorsMessages := make(map[string]string)
+	errorMessages := make(map[string]map[string]string)
 
 	for _, validationError := range validationErrors {
-		errorsMessages[validationError.Field()] = validationError.Translate(trans)
+		if _, ok := errorMessages[validationError.Field()]; !ok {
+			errorMessages[validationError.Field()] = make(map[string]string)
+		}
+		errorMessages[validationError.Field()][validationError.Tag()] = validationError.Translate(trans)
 	}
 
-	controller.Response(c, 422, errorsMessages, nil)
+	controller.Response(c, 422, errorMessages, nil)
 }
 
 func handleBindingError(c *gin.Context, bindingError exceptions.BindingError, transKey string) {
@@ -65,18 +68,18 @@ func handleBindingError(c *gin.Context, bindingError exceptions.BindingError, tr
 	controller.Response(c, 400, message, nil)
 }
 
-func handleRegistrationError(c *gin.Context, registrationError exceptions.UserRegistrationError, transKey string) {
+func handleRegistrationError(c *gin.Context, registrationErrors exceptions.UserRegistrationError, transKey string) {
 	trans := controller.GetTranslator(c, transKey)
-	errorsMessages := make(map[string]string)
-	if registrationError.Username != "" {
-		message, _ := trans.T("user_registration.username_exists")
-		errorsMessages["username"] = message
+	errorMessages := make(map[string]map[string]string)
+	for _, registrationError := range registrationErrors.FieldErrors() {
+		if _, ok := errorMessages[registrationError.Field]; !ok {
+			errorMessages[registrationError.Field] = make(map[string]string)
+		}
+		message, _ := trans.T(registrationError.Tag) // I want to pass a field to json but I am dumb sadly!
+		errorMessages[registrationError.Field][registrationError.Tag] = message
 	}
-	if registrationError.Email != "" {
-		message, _ := trans.T("user_registration.email_exists")
-		errorsMessages["email"] = message
-	}
-	controller.Response(c, 422, errorsMessages, nil)
+
+	controller.Response(c, 422, errorMessages, nil)
 }
 
 func unhandledErrors(c *gin.Context, err error, transKey string) {

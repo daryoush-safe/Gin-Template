@@ -4,41 +4,31 @@ import (
 	"fmt"
 )
 
-// type UsernameExistsError struct {
-// 	Username string
-// }
-
-// func (e UsernameExistsError) Error() string {
-// 	return fmt.Sprintf("Username %s already exists.", e.Username)
-// }
-
-// type EmailExistsError struct {
-// 	Email string
-// }
-
-// func (e EmailExistsError) Error() string {
-// 	return fmt.Sprintf("Email %s already exists.", e.Email)
-// }
+type FieldError struct {
+	Field string
+	Tag   string
+}
 
 type UserRegistrationError struct {
-	Username string
-	Email    string
+	Errors []FieldError
 }
 
 func (e UserRegistrationError) Error() string {
-	// var massages []string
-	// if e.Username != "" {
-	// 	massages = append(massages, fmt.Sprintf("Username %s already exists.", e.Username))
-	// } else if e.Email != "" {
-	// 	massages = append(massages, fmt.Sprintf("Email %s already exists.", e.Email))
-	// } else {
-	// 	return "Registration failed."
-	// }
-	// return strings.Join(massages, "; ")
-	if e.Username != "" {
-		return fmt.Sprintf("Username %s already exists.", e.Username)
-	} else if e.Email != "" {
-		return fmt.Sprintf("Email %s already exists.", e.Email)
+	if len(e.Errors) == 0 {
+		return "Registration failed."
 	}
-	return "Registration failed."
+
+	var errMsg string
+	for _, fe := range e.Errors {
+		errMsg += fmt.Sprintf("%s %s.\n", fe.Field, fe.Tag)
+	}
+	return errMsg
+}
+
+func (e *UserRegistrationError) AppendError(fieldName string, tag string) {
+	e.Errors = append(e.Errors, FieldError{Field: fieldName, Tag: tag})
+}
+
+func (e UserRegistrationError) FieldErrors() []FieldError {
+	return e.Errors
 }

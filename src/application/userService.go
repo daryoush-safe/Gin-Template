@@ -1,18 +1,22 @@
 package application
 
 import (
+	"first-project/src/bootstrap"
 	"first-project/src/exceptions"
 	"first-project/src/repository"
+	"regexp"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {
+	constants      *bootstrap.Constants
 	userRepository *repository.UserRepository
 }
 
-func NewRegisterService(userRepository *repository.UserRepository) *UserService {
+func NewUserService(constants *bootstrap.Constants, userRepository *repository.UserRepository) *UserService {
 	return &UserService{
+		constants:      constants,
 		userRepository: userRepository,
 	}
 }
@@ -22,25 +26,47 @@ func hashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
+func validatePasswordTests(errors *[]string, test string, password string, tag string) {
+	matched, _ := regexp.MatchString(test, password)
+	if !matched {
+		*errors = append(*errors, tag)
+	}
+}
+
+func (userService *UserService) passwordValidation(password string) []string {
+	var errors []string
+	validatePasswordTests(&errors, ".{8,}", password, userService.constants.Context.MinimumLength)
+	validatePasswordTests(&errors, "[a-z]", password, userService.constants.Context.ContainsLowercase)
+	validatePasswordTests(&errors, "[A-Z]", password, userService.constants.Context.ContainsUppercase)
+	validatePasswordTests(&errors, "[0-9]", password, userService.constants.Context.ContainsNumber)
+	validatePasswordTests(&errors, "[^\\d\\w]", password, userService.constants.Context.ContainsSpecialChar)
+
+	return errors
+}
+
 func (userService *UserService) RegisterService(username string, email string, password string) {
-	var regError exceptions.UserRegistrationError // returned Error func!! issue on both of errors
+	var registrationError exceptions.UserRegistrationError
 	isRegError := false
 	usernameExist := userService.userRepository.CheckUsernameExists(username)
 	if usernameExist {
-		// usernameExistError := exceptions.UserRegistrationError{Username: username}
-		// panic(usernameExistError)
 		isRegError = true
-		regError.Username = username
+		registrationError.AppendError("Username", userService.constants.Context.AlreadyExist)
 	}
 	emailExist := userService.userRepository.CheckEmailExists(email)
 	if emailExist {
-		// emailExistError := exceptions.UserRegistrationError{Email: email}
-		// panic(emailExistError)
 		isRegError = true
-		regError.Email = email
+		registrationError.AppendError("Email", userService.constants.Context.AlreadyExist)
 	}
+	passwordErrorTags := userService.passwordValidation(password)
+	if len(passwordErrorTags) > 0 {
+		isRegError = true
+		for _, v := range passwordErrorTags {
+			registrationError.AppendError("Password", v)
+		}
+	}
+
 	if isRegError {
-		panic(regError)
+		panic(registrationError)
 	}
 	hashedPassword, err := hashPassword(password)
 	if err != nil {
