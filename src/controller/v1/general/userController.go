@@ -23,9 +23,9 @@ func NewUserController(constants *bootstrap.Constants, userService *application.
 
 func (userController *UserController) Register(c *gin.Context) {
 	type registerParams struct {
-		Username string `uri:"username" validate:"required,gt=2,lt=20"`
-		Email    string `uri:"email" validate:"required,email"`
-		Password string `uri:"password" validate:"required,min=8,containsLowercase,containsUppercase,containsNumber,containsSpecialChar"`
+		Username string `json:"username" validate:"required,gt=2,lt=20"`
+		Email    string `json:"email" validate:"required,email"`
+		Password string `json:"password" validate:"required"`
 	}
 
 	param := controller.Validated[registerParams](c, &userController.constants.Context)

@@ -10,8 +10,10 @@
         "username_exists": "Username already exists.",
         "email_exists": "Email already exists."
     },
-    "containsLowercase": "Field should contain lowercase.",
-    "containsUppercase": "Field should contain lowercase.",
-    "containsNumber": "Field should contain lowercase.",
-    "containsSpecialChar": "Field should contain lowercase."
+    "alreadyExist": "The field Have already exist.",
+    "minimumLength": "The field Len must bigger than 7 characters.",
+    "containsLowercase": "The field should contain lowercase.",
+    "containsUppercase": "The field should contain lowercase.",
+    "containsNumber": "The field should contain lowercase.",
+    "containsSpecialChar": "The field should contain lowercase."
 }
