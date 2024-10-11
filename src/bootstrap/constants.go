@@ -19,6 +19,8 @@ type Context struct {
 	ContainsUppercase             string
 	ContainsNumber                string
 	ContainsSpecialChar           string
+	InvalidToken                  string
+	AlreadyVerified               string
 }
 
 type Redis struct {
@@ -36,6 +38,8 @@ func NewConstants() *Constants {
 			ContainsUppercase:             "containsUppercase",
 			ContainsNumber:                "containsNumber",
 			ContainsSpecialChar:           "containsSpecialChar",
+			InvalidToken:                  "invalidToken",
+			AlreadyVerified:               "alreadyVerified",
 		},
 		Redis: Redis{},
 	}

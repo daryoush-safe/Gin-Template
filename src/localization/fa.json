@@ -14,5 +14,7 @@
     "containsLowercase": "باید حتما دارای حرف کوچک باشد.",
     "containsUppercase": "باید حتما دارای حرف بزرگ باشد.",
     "containsNumber": "باید حتما دارای عدد باشد.",
-    "containsSpecialChar": "باید حتما دارای حروف خاص باشد."
+    "containsSpecialChar": "باید حتما دارای حروف خاص باشد.",
+    "invalidToken": "توکن شما صحیح نمیباشد.",
+    "alreadyVerified": "کاربر قبلا احراز هویت شده است."
 }

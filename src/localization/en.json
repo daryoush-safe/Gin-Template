@@ -15,5 +15,7 @@
     "containsLowercase": "The field should contain lowercase.",
     "containsUppercase": "The field should contain lowercase.",
     "containsNumber": "The field should contain lowercase.",
-    "containsSpecialChar": "The field should contain lowercase."
+    "containsSpecialChar": "The field should contain lowercase.",
+    "invalidToken": "Token is invalid.",
+    "alreadyVerified": "User Already Verified."
 }

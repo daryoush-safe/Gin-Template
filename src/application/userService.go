@@ -50,6 +50,8 @@ func (userService *UserService) RegisterService(username string, email string, p
 	usernameExist := userService.userRepository.CheckUsernameExists(username)
 	if usernameExist {
 		isRegError = true
+		// TODO: why context?
+		// TODO: use translate here ?! not sure =)
 		registrationError.AppendError("Username", userService.constants.Context.AlreadyExist)
 	}
 	emailExist := userService.userRepository.CheckEmailExists(email)
@@ -73,4 +75,14 @@ func (userService *UserService) RegisterService(username string, email string, p
 		panic(err)
 	}
 	userService.userRepository.RegisterUser(username, email, hashedPassword)
+}
+
+func (userService *UserService) VerifyEmail(email string) {
+	var registrationError exceptions.UserRegistrationError
+	alreadyVerified := userService.userRepository.CheckUserVerified(email)
+	if alreadyVerified {
+		registrationError.AppendError("Email", userService.constants.Context.AlreadyVerified)
+		panic(registrationError)
+	}
+	userService.userRepository.VerifyEmail(email)
 }
