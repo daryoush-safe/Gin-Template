@@ -33,13 +33,14 @@ func (repo *UserRepository) Test2() []entities.Test {
 
 func (repo *UserRepository) CheckUsernameExists(username string) bool {
 	var user entities.User
-	result := repo.db.Where("name = ?", username).First(&user)
+	result := repo.db.Where("name = ? AND verified = ?", username, true).First(&user)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			return false
 		}
-		log.Println("Error occurred:", result.Error)
+		// TODO: panic
+		log.Println("Error occurred during finding name:", result.Error)
 		return true
 	}
 
@@ -48,13 +49,14 @@ func (repo *UserRepository) CheckUsernameExists(username string) bool {
 
 func (repo *UserRepository) CheckEmailExists(email string) bool {
 	var user entities.User
-	result := repo.db.Where("email = ?", email).First(&user)
+	result := repo.db.Where("email = ? AND verified = ?", email, true).First(&user)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			return false
 		}
-		log.Println("Error occurred:", result.Error)
+		// TODO: panic
+		log.Println("Error occurred during finding email:", result.Error)
 		return true
 	}
 
@@ -66,9 +68,39 @@ func (repo *UserRepository) RegisterUser(username string, email string, password
 		Name:     username,
 		Email:    email,
 		Password: password,
+		Verified: false,
 	}
 	result := repo.db.Create(&user)
 	if result.Error != nil {
+		// TODO: panic
 		log.Println("Error creating user: ", result.Error)
+	}
+}
+
+func (repo *UserRepository) CheckUserVerified(email string) bool {
+	var user entities.User
+	result := repo.db.Where("verified = ?", email, true).First(&user)
+
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return false
+		}
+		log.Println("Error occurred:", result.Error)
+		return true
+	}
+
+	return true
+}
+
+func (repo *UserRepository) VerifyEmail(email string) {
+	var user entities.User
+	result := repo.db.Where("email = ?", email).First(&user)
+	if result.Error != nil {
+		// TODO: panic
+		log.Println("Failed to find user: ", result.Error)
+	}
+	user.Verified = true
+	if err := repo.db.Save(&user).Error; err != nil {
+		log.Println("Failed to update user:", err)
 	}
 }
