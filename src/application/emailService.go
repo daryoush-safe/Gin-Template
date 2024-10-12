@@ -17,19 +17,19 @@ func NewEmailService(emailInfo *bootstrap.EmailInfo) *EmailService {
 }
 
 // TODO: change this to communication and then email sender!
-func (emailService *EmailService) SendVerificationEmail(username string, toEmail string, token string) {
+func (emailService *EmailService) SendVerificationEmail(username string, toEmail string, otp string) {
 	from := emailService.emailInfo.EmailFrom
 	password := emailService.emailInfo.EmailPassword
 	smtpHost := emailService.emailInfo.SMTPHost
 	smtpPort := emailService.emailInfo.SMTPPort
 
 	// TODO: remove jwt use otp instead
-	verificationLink := (fmt.Sprintf("http://localhost:8080/v1/verifyEmail/%s", token))
-	// TODO: translation
+	verificationLink := "http://localhost:8080/v1/register/activate"
+	// TODO: translation and template
 	message := []byte(
 		fmt.Sprintf(
-			"dear %s;\nPlease verify your email by clicking on the link:\n%s",
-			username, verificationLink),
+			"dear %s;\nPlease visit: %s and input otp below to activate your account:\n%s",
+			username, verificationLink, otp),
 	)
 	auth := smtp.PlainAuth("", from, password, smtpHost)
 	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, []string{toEmail}, message)

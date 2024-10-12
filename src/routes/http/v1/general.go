@@ -17,17 +17,16 @@ func SetupGeneralRoutes(routerGroup *gin.RouterGroup, di *bootstrap.Di, db *gorm
 	sampleController := controller_v1_general.NewSampleController(di.Constants, addService)
 
 	userService := application.NewUserService(di.Constants, userRepository)
-	// TODO: remove jwt
-	jwtService := application.NewJwtService(di.Env.SecretKey, di.Constants)
+	otpService := application.NewOTPService(di.Constants, userRepository)
 	emailService := application.NewEmailService(&di.Env.Email)
 	userController := controller_v1_general.NewUserController(
-		di.Constants, userService, jwtService, emailService,
+		di.Constants, userService, otpService, emailService,
 	)
 
 	routerGroup.GET("/ping", controller_v1_general.Pong)
 	routerGroup.GET("/add/:num1/:num2", sampleController.Add)
 	routerGroup.POST("/register", userController.Register)
-	routerGroup.GET("/verifyEmail/:token", userController.VerifyEmail)
+	routerGroup.POST("/register/activate", userController.VerifyEmail)
 
 	return routerGroup
 }

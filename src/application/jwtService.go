@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// TODO: improve and use this logic in login
 type JwtService struct {
 	secretKey string
 	constants *bootstrap.Constants
@@ -24,8 +25,7 @@ func NewJwtService(secretKey string, constants *bootstrap.Constants) *JwtService
 func (jwtService *JwtService) CreateToken(email string) string {
 	expirationTime := time.Now().Add(time.Hour * 24).Unix()
 	claims := jwt.MapClaims{
-		"email": email,
-		"exp":   expirationTime,
+		"exp": expirationTime,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	jwtSecret := []byte(jwtService.secretKey)
@@ -54,6 +54,8 @@ func (jwtService *JwtService) VerifyToken(tokenString string) string {
 		email := claims["email"].(string)
 		return email
 	}
-	registrationError.AppendError("Email", jwtService.constants.Context.InvalidToken)
+	registrationError.AppendError(
+		jwtService.constants.ErrorField.Email,
+		jwtService.constants.ErrorTag.InvalidToken)
 	panic(registrationError)
 }

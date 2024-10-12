@@ -3,6 +3,7 @@ package repository
 import (
 	"first-project/src/entities"
 	"log"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -55,52 +56,62 @@ func (repo *UserRepository) CheckEmailExists(email string) bool {
 		if result.Error == gorm.ErrRecordNotFound {
 			return false
 		}
-		// TODO: panic
-		log.Println("Error occurred during finding email:", result.Error)
-		return true
+		panic(result.Error)
 	}
 
 	return true
 }
 
-func (repo *UserRepository) RegisterUser(username string, email string, password string) {
+func (repo *UserRepository) registerNewUser(username string, email string, password string, otp string) {
 	user := entities.User{
 		Name:     username,
 		Email:    email,
 		Password: password,
+		OTP:      otp,
 		Verified: false,
 	}
 	result := repo.db.Create(&user)
 	if result.Error != nil {
-		// TODO: panic
-		log.Println("Error creating user: ", result.Error)
+		panic(result.Error)
 	}
 }
 
-func (repo *UserRepository) CheckUserVerified(email string) bool {
+func (repo *UserRepository) updateUserRegistration(user entities.User, otp string) {
+	user.OTP = otp
+	repo.db.Save(&user)
+}
+
+func (repo *UserRepository) RegisterUser(username string, email string, password string, otp string) {
 	var user entities.User
-	result := repo.db.Where("verified = ?", email, true).First(&user)
 
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			return false
-		}
-		log.Println("Error occurred:", result.Error)
-		return true
+	result := repo.db.Where("email = ? AND verified = ?", email, false).First(&user)
+	if result.Error == nil {
+		repo.updateUserRegistration(user, otp)
+	} else if result.Error == gorm.ErrRecordNotFound {
+		repo.registerNewUser(username, email, password, otp)
+	} else {
+		panic(result.Error)
 	}
+}
 
-	return true
+func (repo *UserRepository) GetOTPByEmail(email string) (string, time.Time) {
+	var user entities.User
+	result := repo.db.Where("email = ?", email).First(&user)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	return user.OTP, user.UpdatedAt
 }
 
 func (repo *UserRepository) VerifyEmail(email string) {
 	var user entities.User
 	result := repo.db.Where("email = ?", email).First(&user)
 	if result.Error != nil {
-		// TODO: panic
-		log.Println("Failed to find user: ", result.Error)
+		panic(result.Error)
 	}
 	user.Verified = true
+	user.OTP = ""
 	if err := repo.db.Save(&user).Error; err != nil {
-		log.Println("Failed to update user:", err)
+		panic(err)
 	}
 }
