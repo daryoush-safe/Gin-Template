@@ -7,6 +7,7 @@ type User struct {
 	Name              string
 	Email             string
 	Password          string
+	OTP               string
 	Verified          bool
 	PreviousPasswords []Password `gorm:"foreignKey:UserID"`
 }

@@ -35,54 +35,66 @@ func validatePasswordTests(errors *[]string, test string, password string, tag s
 
 func (userService *UserService) passwordValidation(password string) []string {
 	var errors []string
-	validatePasswordTests(&errors, ".{8,}", password, userService.constants.Context.MinimumLength)
-	validatePasswordTests(&errors, "[a-z]", password, userService.constants.Context.ContainsLowercase)
-	validatePasswordTests(&errors, "[A-Z]", password, userService.constants.Context.ContainsUppercase)
-	validatePasswordTests(&errors, "[0-9]", password, userService.constants.Context.ContainsNumber)
-	validatePasswordTests(&errors, "[^\\d\\w]", password, userService.constants.Context.ContainsSpecialChar)
+
+	validatePasswordTests(&errors, ".{8,}", password, userService.constants.ErrorTag.MinimumLength)
+	validatePasswordTests(&errors, "[a-z]", password, userService.constants.ErrorTag.ContainsLowercase)
+	validatePasswordTests(&errors, "[A-Z]", password, userService.constants.ErrorTag.ContainsUppercase)
+	validatePasswordTests(&errors, "[0-9]", password, userService.constants.ErrorTag.ContainsNumber)
+	validatePasswordTests(&errors, "[^\\d\\w]", password, userService.constants.ErrorTag.ContainsSpecialChar)
 
 	return errors
 }
 
-func (userService *UserService) RegisterService(username string, email string, password string) {
+func (userService *UserService) VerifyUserRegistration(username string, email string, password string) {
 	var registrationError exceptions.UserRegistrationError
 	isRegError := false
 	usernameExist := userService.userRepository.CheckUsernameExists(username)
 	if usernameExist {
 		isRegError = true
-		// TODO: why context?
 		// TODO: use translate here ?! not sure =)
-		registrationError.AppendError("Username", userService.constants.Context.AlreadyExist)
+		registrationError.AppendError(
+			userService.constants.ErrorField.Username,
+			userService.constants.ErrorTag.AlreadyExist)
 	}
 	emailExist := userService.userRepository.CheckEmailExists(email)
 	if emailExist {
 		isRegError = true
-		registrationError.AppendError("Email", userService.constants.Context.AlreadyExist)
+		registrationError.AppendError(
+			userService.constants.ErrorField.Email,
+			userService.constants.ErrorTag.AlreadyExist)
 	}
 	passwordErrorTags := userService.passwordValidation(password)
 	if len(passwordErrorTags) > 0 {
 		isRegError = true
 		for _, v := range passwordErrorTags {
-			registrationError.AppendError("Password", v)
+			registrationError.AppendError(userService.constants.ErrorField.Password, v)
 		}
 	}
 
 	if isRegError {
 		panic(registrationError)
 	}
+}
+
+func (userService *UserService) RegisterUser(username string, email string, password string, otp string) {
 	hashedPassword, err := hashPassword(password)
 	if err != nil {
 		panic(err)
 	}
-	userService.userRepository.RegisterUser(username, email, hashedPassword)
+	userService.userRepository.RegisterUser(username, email, hashedPassword, otp)
+}
+
+func (userService *UserService) CheckUserAlreadyVerified(email string) {
+	var registrationError exceptions.UserRegistrationError
+	alreadyVerified := userService.userRepository.CheckEmailExists(email)
+	if alreadyVerified {
+		registrationError.AppendError(
+			userService.constants.ErrorField.Email,
+			userService.constants.ErrorTag.AlreadyVerified)
+		panic(registrationError)
+	}
 }
 
 func (userService *UserService) VerifyEmail(email string) {
-	var registrationError exceptions.UserRegistrationError
-	alreadyVerified := userService.userRepository.CheckUserVerified(email)
-	if alreadyVerified {
-		registrationError.AppendError("Email", userService.constants.Context.AlreadyVerified)
-		panic(registrationError)
-	}
 	userService.userRepository.VerifyEmail(email)
 }

@@ -12,20 +12,20 @@ import (
 type UserController struct {
 	constants    *bootstrap.Constants
 	userService  *application.UserService
-	jwtService   *application.JwtService
+	otpService   *application.OTPService
 	emailService *application.EmailService
 }
 
 func NewUserController(
 	constants *bootstrap.Constants,
 	userService *application.UserService,
-	jwtService *application.JwtService,
+	otpService *application.OTPService,
 	emailService *application.EmailService,
 ) *UserController {
 	return &UserController{
 		constants:    constants,
 		userService:  userService,
-		jwtService:   jwtService,
+		otpService:   otpService,
 		emailService: emailService,
 	}
 }
@@ -37,10 +37,10 @@ func (userController *UserController) Register(c *gin.Context) {
 		Password string `json:"password" validate:"required"`
 	}
 	param := controller.Validated[registerParams](c, &userController.constants.Context)
-	userController.userService.RegisterService(param.Username, param.Email, param.Password)
-	// TODO: incorrect: remove jwt use otp instead
-	tokenString := userController.jwtService.CreateToken(param.Email)
-	userController.emailService.SendVerificationEmail(param.Username, param.Email, tokenString)
+	userController.userService.VerifyUserRegistration(param.Username, param.Email, param.Password)
+	otp := application.GenerateOTP()
+	userController.emailService.SendVerificationEmail(param.Username, param.Email, otp)
+	userController.userService.RegisterUser(param.Username, param.Email, param.Password, otp)
 	// TODO: standard response
 	// TODO: translate
 	c.String(http.StatusOK, "Please verify your Email to activate your account!")
@@ -48,12 +48,13 @@ func (userController *UserController) Register(c *gin.Context) {
 
 func (userController *UserController) VerifyEmail(c *gin.Context) {
 	type verifyEmailParams struct {
-		Token string `uri:"token" validate:"required"`
+		OTP   string `json:"otp" validate:"required"`
+		Email string `json:"email" validate:"required"`
 	}
 	param := controller.Validated[verifyEmailParams](c, &userController.constants.Context)
-	// TODO: use otp
-	email := userController.jwtService.VerifyToken(param.Token)
-	userController.userService.VerifyEmail(email)
+	userController.userService.CheckUserAlreadyVerified(param.Email)
+	userController.otpService.VerifyOTP(param.OTP, param.Email)
+	userController.userService.VerifyEmail(param.Email)
 	// TODO: standard response
 	// TODO: translate
 	c.String(http.StatusOK, "Email verified!")
