@@ -32,17 +32,19 @@ func NewUserController(
 
 func (userController *UserController) Register(c *gin.Context) {
 	type registerParams struct {
-		Username string `json:"username" validate:"required,gt=2,lt=20"`
-		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required"`
+		Username        string `json:"username" validate:"required,gt=2,lt=20"`
+		Email           string `json:"email" validate:"required,email"`
+		Password        string `json:"password" validate:"required"`
+		ConfirmPassword string `json:"confirmPassword" validate:"required"`
 	}
 	param := controller.Validated[registerParams](c, &userController.constants.Context)
-	userController.userService.VerifyUserRegistration(param.Username, param.Email, param.Password)
+	userController.userService.VerifyUserRegistration(param.Username, param.Email, param.Password, param.ConfirmPassword)
 	otp := application.GenerateOTP()
 	userController.emailService.SendVerificationEmail(param.Username, param.Email, otp)
 	userController.userService.RegisterUser(param.Username, param.Email, param.Password, otp)
 	// TODO: standard response
 	// TODO: translate
+	// controller.Response(c, 200, )
 	c.String(http.StatusOK, "Please verify your Email to activate your account!")
 }
 

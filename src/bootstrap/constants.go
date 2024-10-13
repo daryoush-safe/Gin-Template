@@ -25,16 +25,17 @@ type ErrorField struct {
 }
 
 type ErrorTag struct {
-	AlreadyExist        string
-	MinimumLength       string
-	ContainsLowercase   string
-	ContainsUppercase   string
-	ContainsNumber      string
-	ContainsSpecialChar string
-	InvalidToken        string
-	AlreadyVerified     string
-	OTPExpired          string
-	InvalidOTP          string
+	AlreadyExist            string
+	MinimumLength           string
+	ContainsLowercase       string
+	ContainsUppercase       string
+	ContainsNumber          string
+	ContainsSpecialChar     string
+	NotMatchConfirmPAssword string
+	InvalidToken            string
+	AlreadyVerified         string
+	OTPExpired              string
+	InvalidOTP              string
 }
 
 type Redis struct {
@@ -54,16 +55,17 @@ func NewConstants() *Constants {
 			OTP:      "OTP",
 		},
 		ErrorTag: ErrorTag{
-			AlreadyExist:        "alreadyExist",
-			ContainsLowercase:   "containsLowercase",
-			MinimumLength:       "minimumLength",
-			ContainsUppercase:   "containsUppercase",
-			ContainsNumber:      "containsNumber",
-			ContainsSpecialChar: "containsSpecialChar",
-			InvalidToken:        "invalidToken",
-			AlreadyVerified:     "alreadyVerified",
-			OTPExpired:          "expiredOTP",
-			InvalidOTP:          "invalidOTP",
+			AlreadyExist:            "alreadyExist",
+			ContainsLowercase:       "containsLowercase",
+			MinimumLength:           "minimumLength",
+			ContainsUppercase:       "containsUppercase",
+			ContainsNumber:          "containsNumber",
+			ContainsSpecialChar:     "containsSpecialChar",
+			NotMatchConfirmPAssword: "notMatchConfirmPAssword",
+			InvalidToken:            "invalidToken",
+			AlreadyVerified:         "alreadyVerified",
+			OTPExpired:              "expiredOTP",
+			InvalidOTP:              "invalidOTP",
 		},
 		Redis: Redis{},
 	}

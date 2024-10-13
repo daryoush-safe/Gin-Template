@@ -45,13 +45,13 @@ func (userService *UserService) passwordValidation(password string) []string {
 	return errors
 }
 
-func (userService *UserService) VerifyUserRegistration(username string, email string, password string) {
+func (userService *UserService) VerifyUserRegistration(username string, email string, password string, confirmPassword string) {
 	var registrationError exceptions.UserRegistrationError
 	isRegError := false
 	usernameExist := userService.userRepository.CheckUsernameExists(username)
 	if usernameExist {
 		isRegError = true
-		// TODO: use translate here ?! not sure =)
+		// maybe adding translates here but I was not agreed
 		registrationError.AppendError(
 			userService.constants.ErrorField.Username,
 			userService.constants.ErrorTag.AlreadyExist)
@@ -69,6 +69,13 @@ func (userService *UserService) VerifyUserRegistration(username string, email st
 		for _, v := range passwordErrorTags {
 			registrationError.AppendError(userService.constants.ErrorField.Password, v)
 		}
+	}
+
+	if confirmPassword != password {
+		isRegError = true
+		registrationError.AppendError(
+			userService.constants.ErrorField.Password,
+			userService.constants.ErrorTag.NotMatchConfirmPAssword)
 	}
 
 	if isRegError {
