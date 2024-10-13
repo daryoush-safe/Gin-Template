@@ -22,8 +22,6 @@ func (emailService *EmailService) SendVerificationEmail(username string, toEmail
 	password := emailService.emailInfo.EmailPassword
 	smtpHost := emailService.emailInfo.SMTPHost
 	smtpPort := emailService.emailInfo.SMTPPort
-
-	// TODO: remove jwt use otp instead
 	verificationLink := "http://localhost:8080/v1/register/activate"
 	// TODO: translation and template
 	message := []byte(

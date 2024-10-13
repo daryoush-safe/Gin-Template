@@ -2,7 +2,6 @@ package repository
 
 import (
 	"first-project/src/entities"
-	"log"
 	"time"
 
 	"gorm.io/gorm"
@@ -40,9 +39,7 @@ func (repo *UserRepository) CheckUsernameExists(username string) bool {
 		if result.Error == gorm.ErrRecordNotFound {
 			return false
 		}
-		// TODO: panic
-		log.Println("Error occurred during finding name:", result.Error)
-		return true
+		panic(result.Error)
 	}
 
 	return true
