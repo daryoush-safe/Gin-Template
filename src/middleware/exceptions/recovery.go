@@ -4,6 +4,7 @@ import (
 	"first-project/src/bootstrap"
 	"first-project/src/controller"
 	"first-project/src/exceptions"
+	"fmt"
 	"log"
 	"strconv"
 
@@ -75,7 +76,7 @@ func handleRegistrationError(c *gin.Context, registrationErrors exceptions.UserR
 		if _, ok := errorMessages[registrationError.Field]; !ok {
 			errorMessages[registrationError.Field] = make(map[string]string)
 		}
-		message, _ := trans.T(registrationError.Tag) // I want to pass a field to json but I am dumb sadly!
+		message, _ := trans.T(fmt.Sprintf("errors.%s", registrationError.Tag), registrationError.Field)
 		errorMessages[registrationError.Field][registrationError.Tag] = message
 	}
 

@@ -4,7 +4,6 @@ import (
 	"first-project/src/application"
 	"first-project/src/bootstrap"
 	"first-project/src/controller"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,6 +29,18 @@ func NewUserController(
 	}
 }
 
+func userRegistrationResponse(c *gin.Context, transKey string) {
+	trans := controller.GetTranslator(c, transKey)
+	message, _ := trans.T("successMessage.userRegistration")
+	controller.Response(c, 200, message, nil)
+}
+
+func emailVerificationResponse(c *gin.Context, transKey string) {
+	trans := controller.GetTranslator(c, transKey)
+	message, _ := trans.T("successMessage.emailVerification")
+	controller.Response(c, 200, message, nil)
+}
+
 func (userController *UserController) Register(c *gin.Context) {
 	type registerParams struct {
 		Username        string `json:"username" validate:"required,gt=2,lt=20"`
@@ -42,10 +53,7 @@ func (userController *UserController) Register(c *gin.Context) {
 	otp := application.GenerateOTP()
 	userController.emailService.SendVerificationEmail(param.Username, param.Email, otp)
 	userController.userService.RegisterUser(param.Username, param.Email, param.Password, otp)
-	// TODO: standard response
-	// TODO: translate
-	// controller.Response(c, 200, )
-	c.String(http.StatusOK, "Please verify your Email to activate your account!")
+	userRegistrationResponse(c, userController.constants.Context.Translator)
 }
 
 func (userController *UserController) VerifyEmail(c *gin.Context) {
@@ -57,7 +65,5 @@ func (userController *UserController) VerifyEmail(c *gin.Context) {
 	userController.userService.CheckUserAlreadyVerified(param.Email)
 	userController.otpService.VerifyOTP(param.OTP, param.Email)
 	userController.userService.VerifyEmail(param.Email)
-	// TODO: standard response
-	// TODO: translate
-	c.String(http.StatusOK, "Email verified!")
+	emailVerificationResponse(c, userController.constants.Context.Translator)
 }
