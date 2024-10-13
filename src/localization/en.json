@@ -3,13 +3,12 @@
         "generic": "an error occurred, please try again.",
         "numeric": "The `{0}` should be a numeric value."
     },
-    
+    "successMessage": {
+        "userRegistration": "Successfully! Please verify your Email to activate your account."
+        
+    },
     "validation error": "input data is invalid!",
     "unhandled error": "system is busy now, try again later.",
-    "user_registration": {
-        "username_exists": "Username already exists.",
-        "email_exists": "Email already exists."
-    },
     "alreadyExist": "The field Have already exist.",
     "minimumLength": "The field Len must bigger than 7 characters.",
     "containsLowercase": "The field should contain lowercase.",
@@ -19,5 +18,7 @@
     "invalidToken": "Token is invalid.",
     "alreadyVerified": "User Already Verified.",
     "expiredOTP": "Input one time password is expired.",
-    "invalidOTP": "Input one time password is invalid."
+    "invalidOTP": "Input one time password is invalid.",
+    "notMatchConfirmPAssword": "password and confirm password are not match."
+
 }
