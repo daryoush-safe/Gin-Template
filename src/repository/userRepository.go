@@ -112,3 +112,16 @@ func (repo *UserRepository) VerifyEmail(email string) {
 		panic(err)
 	}
 }
+
+func (repo *UserRepository) GetPasswordByUsername(username string) (string, error) {
+	var user entities.User
+	result := repo.db.Where("name = ?", username).First(&user)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return "", result.Error
+		}
+		panic(result.Error)
+	}
+
+	return user.Password, nil
+}

@@ -32,6 +32,8 @@ func (recovery RecoveryMiddleware) Recovery(c *gin.Context) {
 					handleBindingError(c, bindingError, recovery.constants.Translator)
 				} else if registrationErrors, ok := err.(exceptions.UserRegistrationError); ok {
 					handleRegistrationError(c, registrationErrors, recovery.constants.Translator)
+				} else if _, ok := err.(exceptions.LoginError); ok {
+					handleLoginError(c, recovery.constants.Translator)
 				} else {
 					unhandledErrors(c, err, recovery.constants.Translator)
 				}
@@ -81,6 +83,12 @@ func handleRegistrationError(c *gin.Context, registrationErrors exceptions.UserR
 	}
 
 	controller.Response(c, 422, errorMessages, nil)
+}
+
+func handleLoginError(c *gin.Context, transKey string) {
+	trans := controller.GetTranslator(c, transKey)
+	message, _ := trans.T("errors.notMatchConfirmPAssword")
+	controller.Response(c, 422, message, nil)
 }
 
 func unhandledErrors(c *gin.Context, err error, transKey string) {
