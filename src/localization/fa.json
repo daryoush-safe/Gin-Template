@@ -12,10 +12,11 @@
         "alreadyVerified": "کاربر قبلا احراز هویت شده است.",
         "expiredOTP": "رمز عبور یکبار مصرف شما منقضی شده است.",
         "invalidOTP": "رمز عبور یکبار مصرف اشتباه است.",
-        "notMatchConfirmPAssword": "تکرار رمز عبور با رمز عبور باید یکسان باشد."
+        "notMatchConfirmPAssword": "نام کاربری یا رمزعبور صحیح نمیباشد."
     },
     "successMessage": {
         "userRegistration": "با موفقیت انجام شد. لطفا ایمیل خود را تایید کنید تا حساب شما فعال شود.",
-        "emailVerification": "ایمیل شما تایید شد."
+        "emailVerification": "ایمیل شما تایید شد.",
+        "login": "با موفقیت وارد شدید."
     }
 }

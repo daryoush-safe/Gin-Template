@@ -16,6 +16,7 @@
     },
     "successMessage": {
         "userRegistration": "Successfully! Please verify your Email to activate your account.",
-        "emailVerification": "Email Verified."
+        "emailVerification": "Email Verified.",
+        "login": "Login Successfully."
     }
 }

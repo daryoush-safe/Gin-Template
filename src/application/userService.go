@@ -26,6 +26,11 @@ func hashPassword(password string) (string, error) {
 	return string(bytes), err
 }
 
+func verifyPassword(hashedPassword string, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	return err == nil
+}
+
 func validatePasswordTests(errors *[]string, test string, password string, tag string) {
 	matched, _ := regexp.MatchString(test, password)
 	if !matched {
@@ -91,7 +96,7 @@ func (userService *UserService) RegisterUser(username string, email string, pass
 	userService.userRepository.RegisterUser(username, email, hashedPassword, otp)
 }
 
-func (userService *UserService) CheckUserAlreadyVerified(email string) {
+func (userService *UserService) CheckUserAlreadyVerifiedByEmail(email string) {
 	var registrationError exceptions.UserRegistrationError
 	alreadyVerified := userService.userRepository.CheckEmailExists(email)
 	if alreadyVerified {
@@ -104,4 +109,17 @@ func (userService *UserService) CheckUserAlreadyVerified(email string) {
 
 func (userService *UserService) VerifyEmail(email string) {
 	userService.userRepository.VerifyEmail(email)
+}
+
+func (userService *UserService) LoginService(username string, password string) {
+	hashedPassword, err := userService.userRepository.GetPasswordByUsername(username)
+	if err != nil {
+		loginError := exceptions.NewLoginError()
+		panic(loginError)
+	}
+	passwordMatch := verifyPassword(hashedPassword, password)
+	if !passwordMatch {
+		loginError := exceptions.NewLoginError()
+		panic(loginError)
+	}
 }

@@ -41,6 +41,12 @@ func emailVerificationResponse(c *gin.Context, transKey string) {
 	controller.Response(c, 200, message, nil)
 }
 
+func loginResponse(c *gin.Context, transKey string) {
+	trans := controller.GetTranslator(c, transKey)
+	message, _ := trans.T("successMessage.login")
+	controller.Response(c, 200, message, nil)
+}
+
 func (userController *UserController) Register(c *gin.Context) {
 	type registerParams struct {
 		Username        string `json:"username" validate:"required,gt=2,lt=20"`
@@ -62,8 +68,18 @@ func (userController *UserController) VerifyEmail(c *gin.Context) {
 		Email string `json:"email" validate:"required"`
 	}
 	param := controller.Validated[verifyEmailParams](c, &userController.constants.Context)
-	userController.userService.CheckUserAlreadyVerified(param.Email)
+	userController.userService.CheckUserAlreadyVerifiedByEmail(param.Email)
 	userController.otpService.VerifyOTP(param.OTP, param.Email)
 	userController.userService.VerifyEmail(param.Email)
 	emailVerificationResponse(c, userController.constants.Context.Translator)
+}
+
+func (userController *UserController) Login(c *gin.Context) {
+	type LoginParams struct {
+		Username string `json:"username" validate:"required"`
+		Password string `json:"password" validate:"required"`
+	}
+	param := controller.Validated[LoginParams](c, &userController.constants.Context)
+	userController.userService.LoginService(param.Username, param.Password)
+	loginResponse(c, userController.constants.Context.Translator)
 }

@@ -27,6 +27,7 @@ func SetupGeneralRoutes(routerGroup *gin.RouterGroup, di *bootstrap.Di, db *gorm
 	routerGroup.GET("/add/:num1/:num2", sampleController.Add)
 	routerGroup.POST("/register", userController.Register)
 	routerGroup.POST("/register/activate", userController.VerifyEmail)
+	routerGroup.POST("/login", userController.Login)
 
 	return routerGroup
 }

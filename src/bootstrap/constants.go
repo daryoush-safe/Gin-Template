@@ -36,6 +36,7 @@ type ErrorTag struct {
 	AlreadyVerified         string
 	OTPExpired              string
 	InvalidOTP              string
+	LoginFailed             string
 }
 
 type Redis struct {
@@ -66,6 +67,7 @@ func NewConstants() *Constants {
 			AlreadyVerified:         "alreadyVerified",
 			OTPExpired:              "expiredOTP",
 			InvalidOTP:              "invalidOTP",
+			LoginFailed:             "loginFailed",
 		},
 		Redis: Redis{},
 	}
