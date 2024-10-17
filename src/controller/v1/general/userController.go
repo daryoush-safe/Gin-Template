@@ -2,6 +2,7 @@ package controller_v1_general
 
 import (
 	"first-project/src/application"
+	application_communication "first-project/src/application/communication/emailService"
 	"first-project/src/bootstrap"
 	"first-project/src/controller"
 
@@ -12,14 +13,14 @@ type UserController struct {
 	constants    *bootstrap.Constants
 	userService  *application.UserService
 	otpService   *application.OTPService
-	emailService *application.EmailService
+	emailService *application_communication.EmailService
 }
 
 func NewUserController(
 	constants *bootstrap.Constants,
 	userService *application.UserService,
 	otpService *application.OTPService,
-	emailService *application.EmailService,
+	emailService *application_communication.EmailService,
 ) *UserController {
 	return &UserController{
 		constants:    constants,
@@ -47,6 +48,30 @@ func loginResponse(c *gin.Context, transKey string) {
 	controller.Response(c, 200, message, nil)
 }
 
+func getTemplatePath(c *gin.Context, transKey string) string {
+	trans := controller.GetTranslator(c, transKey)
+	if trans.Locale() == "fa_IR" {
+		return "fa.html"
+	}
+	return "en.html"
+}
+
+func (userController *UserController) SendEmail(c *gin.Context, username, otp, email string) {
+	templateData := struct {
+		Username       string
+		OTP            string
+		ActivationLink string
+	}{
+		Username:       username,
+		OTP:            otp,
+		ActivationLink: "http://localhost:8080/v1/register/activate",
+	}
+	templatePath := getTemplatePath(c, userController.constants.Context.Translator)
+	// you can also add constant value for subjects!
+	userController.emailService.SendEmail(
+		email, "Activate account", "activateAccount/"+templatePath, templateData)
+}
+
 func (userController *UserController) Register(c *gin.Context) {
 	type registerParams struct {
 		Username        string `json:"username" validate:"required,gt=2,lt=20"`
@@ -57,7 +82,7 @@ func (userController *UserController) Register(c *gin.Context) {
 	param := controller.Validated[registerParams](c, &userController.constants.Context)
 	userController.userService.VerifyUserRegistration(param.Username, param.Email, param.Password, param.ConfirmPassword)
 	otp := application.GenerateOTP()
-	userController.emailService.SendVerificationEmail(param.Username, param.Email, otp)
+	userController.SendEmail(c, param.Username, otp, param.Email)
 	userController.userService.RegisterUser(param.Username, param.Email, param.Password, otp)
 	userRegistrationResponse(c, userController.constants.Context.Translator)
 }
