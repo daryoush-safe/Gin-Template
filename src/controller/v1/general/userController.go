@@ -5,7 +5,6 @@ import (
 	application_communication "first-project/src/application/communication/emailService"
 	"first-project/src/bootstrap"
 	"first-project/src/controller"
-	"first-project/src/exceptions"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,33 +30,9 @@ func NewUserController(
 	}
 }
 
-func userRegistrationResponse(c *gin.Context, transKey string) {
+func setupResponse(c *gin.Context, transKey string, messageTag string) {
 	trans := controller.GetTranslator(c, transKey)
-	message, _ := trans.T("successMessage.userRegistration")
-	controller.Response(c, 200, message, nil)
-}
-
-func emailVerificationResponse(c *gin.Context, transKey string) {
-	trans := controller.GetTranslator(c, transKey)
-	message, _ := trans.T("successMessage.emailVerification")
-	controller.Response(c, 200, message, nil)
-}
-
-func loginResponse(c *gin.Context, transKey string) {
-	trans := controller.GetTranslator(c, transKey)
-	message, _ := trans.T("successMessage.login")
-	controller.Response(c, 200, message, nil)
-}
-
-func forgotPasswordResponse(c *gin.Context, transKey string) {
-	trans := controller.GetTranslator(c, transKey)
-	message, _ := trans.T("successMessage.forgotPassword")
-	controller.Response(c, 200, message, nil)
-}
-
-func resetPasswordResponse(c *gin.Context, transKey string) {
-	trans := controller.GetTranslator(c, transKey)
-	message, _ := trans.T("successMessage.resetPassword")
+	message, _ := trans.T(messageTag)
 	controller.Response(c, 200, message, nil)
 }
 
@@ -109,7 +84,7 @@ func (userController *UserController) Register(c *gin.Context) {
 	otp := application.GenerateOTP()
 	userController.sendActivationEmail(c, param.Username, otp, param.Email)
 	userController.userService.RegisterUser(param.Username, param.Email, param.Password, otp)
-	userRegistrationResponse(c, userController.constants.Context.Translator)
+	setupResponse(c, userController.constants.Context.Translator, "successMessage.userRegistration")
 }
 
 func (userController *UserController) VerifyEmail(c *gin.Context) {
@@ -117,18 +92,11 @@ func (userController *UserController) VerifyEmail(c *gin.Context) {
 		OTP   string `json:"otp" validate:"required"`
 		Email string `json:"email" validate:"required"`
 	}
-	var registrationError exceptions.UserRegistrationError
 	param := controller.Validated[verifyEmailParams](c, &userController.constants.Context)
-	alreadyVerified := userController.userService.CheckUserAlreadyVerifiedByEmail(param.Email)
-	if alreadyVerified {
-		registrationError.AppendError(
-			userController.constants.ErrorField.Email,
-			userController.constants.ErrorTag.AlreadyVerified)
-		panic(registrationError)
-	}
+	userController.userService.VerifyUserNotExist(param.Email)
 	userController.otpService.VerifyOTP(param.OTP, param.Email)
 	userController.userService.VerifyEmail(param.Email)
-	emailVerificationResponse(c, userController.constants.Context.Translator)
+	setupResponse(c, userController.constants.Context.Translator, "successMessage.emailVerification")
 }
 
 func (userController *UserController) Login(c *gin.Context) {
@@ -138,7 +106,7 @@ func (userController *UserController) Login(c *gin.Context) {
 	}
 	param := controller.Validated[loginParams](c, &userController.constants.Context)
 	userController.userService.LoginService(param.Username, param.Password)
-	loginResponse(c, userController.constants.Context.Translator)
+	setupResponse(c, userController.constants.Context.Translator, "successMessage.login")
 }
 
 func (userController *UserController) ForgotPassword(c *gin.Context) {
@@ -146,16 +114,9 @@ func (userController *UserController) ForgotPassword(c *gin.Context) {
 		Email string `json:"email" validate:"required"`
 	}
 	param := controller.Validated[forgotPasswordParams](c, &userController.constants.Context)
-	var registrationError exceptions.UserRegistrationError
-	alreadyVerified := userController.userService.CheckUserAlreadyVerifiedByEmail(param.Email)
-	if !alreadyVerified {
-		registrationError.AppendError(
-			userController.constants.ErrorField.Email,
-			userController.constants.ErrorTag.EmailNotExist)
-		panic(registrationError)
-	}
+	userController.userService.VerifyUserExist(param.Email)
 	userController.sendResetPassEmail(c, param.Email)
-	forgotPasswordResponse(c, userController.constants.Context.Translator)
+	setupResponse(c, userController.constants.Context.Translator, "successMessage.forgotPassword")
 }
 
 func (userController *UserController) ResetPassword(c *gin.Context) {
@@ -166,5 +127,5 @@ func (userController *UserController) ResetPassword(c *gin.Context) {
 	}
 	param := controller.Validated[resetPasswordParams](c, &userController.constants.Context)
 	userController.userService.ResetPasswordService(param.Email, param.Password, param.ConfirmPassword)
-	resetPasswordResponse(c, userController.constants.Context.Translator)
+	setupResponse(c, userController.constants.Context.Translator, "successMessage.resetPassword")
 }

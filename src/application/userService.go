@@ -96,9 +96,26 @@ func (userService *UserService) RegisterUser(username string, email string, pass
 	userService.userRepository.RegisterUser(username, email, hashedPassword, otp)
 }
 
-func (userService *UserService) CheckUserAlreadyVerifiedByEmail(email string) bool {
+func (userService *UserService) VerifyUserNotExist(email string) {
+	var registrationError exceptions.UserRegistrationError
 	alreadyVerified := userService.userRepository.CheckEmailExists(email)
-	return alreadyVerified
+	if alreadyVerified {
+		registrationError.AppendError(
+			userService.constants.ErrorField.Email,
+			userService.constants.ErrorTag.AlreadyVerified)
+		panic(registrationError)
+	}
+}
+
+func (userService *UserService) VerifyUserExist(email string) {
+	var registrationError exceptions.UserRegistrationError
+	alreadyVerified := userService.userRepository.CheckEmailExists(email)
+	if !alreadyVerified {
+		registrationError.AppendError(
+			userService.constants.ErrorField.Email,
+			userService.constants.ErrorTag.EmailNotExist)
+		panic(registrationError)
+	}
 }
 
 func (userService *UserService) VerifyEmail(email string) {
