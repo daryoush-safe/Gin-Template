@@ -12,11 +12,14 @@
         "alreadyVerified": "User Already Verified.",
         "expiredOTP": "Input one time password is expired.",
         "invalidOTP": "Input one time password is invalid.",
-        "notMatchConfirmPAssword": "password and confirm password are not match."
+        "notMatchConfirmPAssword": "password and confirm password are not match.",
+        "emailNotExist": "You should register first."
     },
     "successMessage": {
         "userRegistration": "Successfully! Please verify your Email to activate your account.",
         "emailVerification": "Email Verified.",
-        "login": "Login Successfully."
+        "login": "Login Successfully.",
+        "forgotPassword": "Please check your email to reset your password.",
+        "resetPassword": "Password reset Successfully."
     }
 }

@@ -125,3 +125,13 @@ func (repo *UserRepository) GetPasswordByUsername(username string) (string, erro
 
 	return user.Password, nil
 }
+
+func (repo *UserRepository) UpdatePasswordByEmail(email, password string) {
+	var user entities.User
+	result := repo.db.Where("email = ?", email).First(&user)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	user.Password = password
+	repo.db.Save(&user)
+}

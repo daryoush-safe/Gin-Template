@@ -29,6 +29,8 @@ func SetupGeneralRoutes(routerGroup *gin.RouterGroup, di *bootstrap.Di, db *gorm
 	routerGroup.POST("/register", userController.Register)
 	routerGroup.POST("/register/activate", userController.VerifyEmail)
 	routerGroup.POST("/login", userController.Login)
+	routerGroup.POST("/forgotPassword", userController.ForgotPassword)
+	routerGroup.PUT("/resetPassword", userController.ResetPassword)
 
 	return routerGroup
 }

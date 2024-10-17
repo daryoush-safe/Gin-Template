@@ -96,15 +96,9 @@ func (userService *UserService) RegisterUser(username string, email string, pass
 	userService.userRepository.RegisterUser(username, email, hashedPassword, otp)
 }
 
-func (userService *UserService) CheckUserAlreadyVerifiedByEmail(email string) {
-	var registrationError exceptions.UserRegistrationError
+func (userService *UserService) CheckUserAlreadyVerifiedByEmail(email string) bool {
 	alreadyVerified := userService.userRepository.CheckEmailExists(email)
-	if alreadyVerified {
-		registrationError.AppendError(
-			userService.constants.ErrorField.Email,
-			userService.constants.ErrorTag.AlreadyVerified)
-		panic(registrationError)
-	}
+	return alreadyVerified
 }
 
 func (userService *UserService) VerifyEmail(email string) {
@@ -122,4 +116,27 @@ func (userService *UserService) LoginService(username string, password string) {
 		loginError := exceptions.NewLoginError()
 		panic(loginError)
 	}
+}
+
+func (userService *UserService) ResetPasswordService(email, password, confirmPassword string) {
+	var registrationError exceptions.UserRegistrationError
+	passwordErrorTags := userService.passwordValidation(password)
+	if len(passwordErrorTags) > 0 {
+		for _, v := range passwordErrorTags {
+			registrationError.AppendError(userService.constants.ErrorField.Password, v)
+		}
+		panic(registrationError)
+	}
+	if confirmPassword != password {
+		registrationError.AppendError(
+			userService.constants.ErrorField.Password,
+			userService.constants.ErrorTag.NotMatchConfirmPAssword)
+		panic(registrationError)
+	}
+
+	hashedPassword, err := hashPassword(password)
+	if err != nil {
+		panic(err)
+	}
+	userService.userRepository.UpdatePasswordByEmail(email, hashedPassword)
 }
