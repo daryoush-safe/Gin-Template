@@ -9,7 +9,6 @@ import (
 
 type Env struct {
 	PRIMARY_DB Database
-	SecretKey  string
 	Email      EmailInfo
 }
 
@@ -42,7 +41,6 @@ func NewEnvironments() *Env {
 			DB_USER: os.Getenv("DB_USER"),
 			DB_PASS: os.Getenv("DB_PASS"),
 		},
-		SecretKey: os.Getenv("SECRET_KEY"),
 		Email: EmailInfo{
 			EmailFrom:     os.Getenv("EMAIL_FROM"),
 			EmailPassword: os.Getenv("EMAIL_PASSWORD"),

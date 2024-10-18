@@ -20,9 +20,9 @@ func SetupGeneralRoutes(routerGroup *gin.RouterGroup, di *bootstrap.Di, db *gorm
 	userService := application.NewUserService(di.Constants, userRepository)
 	otpService := application.NewOTPService(di.Constants, userRepository)
 	emailService := application_communication.NewEmailService(&di.Env.Email)
+	var jwtService application.JWTService
 	userController := controller_v1_general.NewUserController(
-		di.Constants, userService, otpService, emailService,
-	)
+		di.Constants, userService, otpService, emailService, &jwtService)
 
 	routerGroup.GET("/ping", controller_v1_general.Pong)
 	routerGroup.GET("/add/:num1/:num2", sampleController.Add)

@@ -14,6 +14,7 @@ type UserController struct {
 	userService  *application.UserService
 	otpService   *application.OTPService
 	emailService *application_communication.EmailService
+	jwtService   *application.JWTService
 }
 
 func NewUserController(
@@ -21,19 +22,21 @@ func NewUserController(
 	userService *application.UserService,
 	otpService *application.OTPService,
 	emailService *application_communication.EmailService,
+	jwtService *application.JWTService,
 ) *UserController {
 	return &UserController{
 		constants:    constants,
 		userService:  userService,
 		otpService:   otpService,
 		emailService: emailService,
+		jwtService:   jwtService,
 	}
 }
 
-func setupResponse(c *gin.Context, transKey string, messageTag string) {
+func setupResponse(c *gin.Context, transKey string, messageTag string, data interface{}) {
 	trans := controller.GetTranslator(c, transKey)
 	message, _ := trans.T(messageTag)
-	controller.Response(c, 200, message, nil)
+	controller.Response(c, 200, message, data)
 }
 
 func getTemplatePath(c *gin.Context, transKey string) string {
@@ -84,7 +87,7 @@ func (userController *UserController) Register(c *gin.Context) {
 	otp := application.GenerateOTP()
 	userController.userService.RegisterUser(param.Username, param.Email, param.Password, otp)
 	userController.sendActivationEmail(c, param.Username, otp, param.Email)
-	setupResponse(c, userController.constants.Context.Translator, "successMessage.userRegistration")
+	setupResponse(c, userController.constants.Context.Translator, "successMessage.userRegistration", nil)
 }
 
 func (userController *UserController) VerifyEmail(c *gin.Context) {
@@ -96,7 +99,16 @@ func (userController *UserController) VerifyEmail(c *gin.Context) {
 	userController.userService.VerifyUserNotExist(param.Email)
 	userController.otpService.VerifyOTP(param.OTP, param.Email)
 	userController.userService.VerifyEmail(param.Email)
-	setupResponse(c, userController.constants.Context.Translator, "successMessage.emailVerification")
+	setupResponse(c, userController.constants.Context.Translator, "successMessage.emailVerification", nil)
+}
+
+func (userController *UserController) setupJWTKeys(c *gin.Context, privateKeyPath, publicKeyPath string) {
+	_, exists := c.Get(userController.constants.Context.IsLoadedJWTPrivateKey)
+	if !exists {
+		jwtService := application.NewJwtService(privateKeyPath, publicKeyPath)
+		userController.jwtService = jwtService
+		c.Set(userController.constants.Context.IsLoadedJWTPrivateKey, true)
+	}
 }
 
 func (userController *UserController) Login(c *gin.Context) {
@@ -105,8 +117,11 @@ func (userController *UserController) Login(c *gin.Context) {
 		Password string `json:"password" validate:"required"`
 	}
 	param := controller.Validated[loginParams](c, &userController.constants.Context)
+	userController.setupJWTKeys(c, "./jwtKeys/privateKey.pem", "./jwtKeys/publicKey.pem")
+	userController.jwtService.GenerateJWT(param.Username)
 	userController.userService.LoginService(param.Username, param.Password)
-	setupResponse(c, userController.constants.Context.Translator, "successMessage.login")
+	jwtString := userController.jwtService.GenerateJWT(param.Username)
+	setupResponse(c, userController.constants.Context.Translator, "successMessage.login", jwtString)
 }
 
 func (userController *UserController) ForgotPassword(c *gin.Context) {
@@ -117,7 +132,7 @@ func (userController *UserController) ForgotPassword(c *gin.Context) {
 	token := application.GenerateOTP()
 	userController.userService.ForgotPasswordService(param.Email, token)
 	userController.sendResetPassEmail(c, param.Email, token)
-	setupResponse(c, userController.constants.Context.Translator, "successMessage.forgotPassword")
+	setupResponse(c, userController.constants.Context.Translator, "successMessage.forgotPassword", nil)
 }
 
 func (userController *UserController) ResetPassword(c *gin.Context) {
@@ -130,5 +145,5 @@ func (userController *UserController) ResetPassword(c *gin.Context) {
 	param := controller.Validated[resetPasswordParams](c, &userController.constants.Context)
 	userController.otpService.VerifyOTP(param.Token, param.Email)
 	userController.userService.ResetPasswordService(param.Email, param.Password, param.ConfirmPassword, param.Token)
-	setupResponse(c, userController.constants.Context.Translator, "successMessage.resetPassword")
+	setupResponse(c, userController.constants.Context.Translator, "successMessage.resetPassword", nil)
 }

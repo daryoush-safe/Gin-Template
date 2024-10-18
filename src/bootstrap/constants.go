@@ -14,6 +14,7 @@ type Constants struct {
 type Context struct {
 	Translator                   string
 	IsLoadedValidationTranslator string
+	IsLoadedJWTPrivateKey        string
 	RetryAfterHeader             string
 }
 
@@ -47,6 +48,7 @@ func NewConstants() *Constants {
 		Context: Context{
 			Translator:                   "translator",
 			IsLoadedValidationTranslator: "isLoadedValidationTranslator",
+			IsLoadedJWTPrivateKey:        "isLoadedJWTPrivateKey",
 			RetryAfterHeader:             "Retry-After",
 		},
 		ErrorField: ErrorField{
