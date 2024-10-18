@@ -87,7 +87,7 @@ func handleRegistrationError(c *gin.Context, registrationErrors exceptions.UserR
 
 func handleLoginError(c *gin.Context, transKey string) {
 	trans := controller.GetTranslator(c, transKey)
-	message, _ := trans.T("errors.notMatchConfirmPAssword")
+	message, _ := trans.T("errors.loginFailed")
 	controller.Response(c, 422, message, nil)
 }
 

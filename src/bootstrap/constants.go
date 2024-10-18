@@ -57,8 +57,8 @@ func NewConstants() *Constants {
 		},
 		ErrorTag: ErrorTag{
 			AlreadyExist:            "alreadyExist",
-			ContainsLowercase:       "containsLowercase",
 			MinimumLength:           "minimumLength",
+			ContainsLowercase:       "containsLowercase",
 			ContainsUppercase:       "containsUppercase",
 			ContainsNumber:          "containsNumber",
 			ContainsSpecialChar:     "containsSpecialChar",
