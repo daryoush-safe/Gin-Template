@@ -41,16 +41,16 @@ func (otpService *OTPService) VerifyOTP(inputOTP string, email string) {
 	var registrationError exceptions.UserRegistrationError
 	otp, lastSentOtp := otpService.userRepository.GetOTPByEmail(email)
 
-	if time.Since(lastSentOtp) > 5*time.Minute {
+	if time.Since(lastSentOtp) > 20*time.Minute {
 		registrationError.AppendError(
 			otpService.constants.ErrorField.OTP,
-			otpService.constants.ErrorTag.OTPExpired)
+			otpService.constants.ErrorTag.ExpiredToken)
 		panic(registrationError)
 	}
 	if inputOTP != otp {
 		registrationError.AppendError(
 			otpService.constants.ErrorField.OTP,
-			otpService.constants.ErrorTag.InvalidOTP)
+			otpService.constants.ErrorTag.InvalidToken)
 		panic(registrationError)
 	}
 }

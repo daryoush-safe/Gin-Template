@@ -8,15 +8,17 @@
         "containsUppercase": "باید حتما دارای حرف بزرگ باشد.",
         "containsNumber": "باید حتما دارای عدد باشد.",
         "containsSpecialChar": "باید حتما دارای حروف خاص باشد.",
-        "invalidToken": "توکن شما صحیح نمیباشد.",
         "alreadyVerified": "کاربر قبلا احراز هویت شده است.",
-        "expiredOTP": "رمز عبور یکبار مصرف شما منقضی شده است.",
-        "invalidOTP": "رمز عبور یکبار مصرف اشتباه است.",
-        "notMatchConfirmPAssword": "نام کاربری یا رمزعبور صحیح نمیباشد."
+        "expiredToken": "توکن شما منقضی شده است.",
+        "invalidToken": "توکن شما اشتباه است.",
+        "notMatchConfirmPAssword": "نام کاربری یا رمزعبور صحیح نمیباشد.",
+        "emailNotExist": "ابتدا باید ثبت نام کنید."
     },
     "successMessage": {
         "userRegistration": "با موفقیت انجام شد. لطفا ایمیل خود را تایید کنید تا حساب شما فعال شود.",
         "emailVerification": "ایمیل شما تایید شد.",
-        "login": "با موفقیت وارد شدید."
+        "login": "با موفقیت وارد شدید.",
+        "forgotPassword": "لطفا ایمیل خود را بررسی کنید تا رمزعبور جدید را وارد کنید.",
+        "resetPassword": "رمزعبور شما با موفقیت تغییر کرد."
     }
 }
