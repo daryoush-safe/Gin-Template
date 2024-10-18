@@ -12,9 +12,9 @@ type Constants struct {
 }
 
 type Context struct {
-	Translator                    string
-	IsLoadedValidationTranslator  string
-	IsLoadedCustomValidationError string
+	Translator                   string
+	IsLoadedValidationTranslator string
+	RetryAfterHeader             string
 }
 
 type ErrorField struct {
@@ -45,9 +45,9 @@ type Redis struct {
 func NewConstants() *Constants {
 	return &Constants{
 		Context: Context{
-			Translator:                    "translator",
-			IsLoadedValidationTranslator:  "isLoadedValidationTranslator",
-			IsLoadedCustomValidationError: "isLoadedCustomValidationError",
+			Translator:                   "translator",
+			IsLoadedValidationTranslator: "isLoadedValidationTranslator",
+			RetryAfterHeader:             "Retry-After",
 		},
 		ErrorField: ErrorField{
 			Username: "username",

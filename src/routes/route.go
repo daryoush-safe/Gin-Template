@@ -4,6 +4,7 @@ import (
 	"first-project/src/bootstrap"
 	middleware_exceptions "first-project/src/middleware/exceptions"
 	middleware_i18n "first-project/src/middleware/i18n"
+	middleware_rate_limit "first-project/src/middleware/rateLimit"
 	routes_http_v1 "first-project/src/routes/http/v1"
 
 	"github.com/gin-gonic/gin"
@@ -13,9 +14,11 @@ import (
 func Run(ginEngine *gin.Engine, di *bootstrap.Di, db *gorm.DB) {
 	localizationMiddleware := middleware_i18n.NewLocalization(&di.Constants.Context)
 	recoveryMiddleware := middleware_exceptions.NewRecovery(&di.Constants.Context)
+	rateLimitMiddleware := middleware_rate_limit.NewRateLimit(5, 10)
 
 	ginEngine.Use(localizationMiddleware.Localization)
 	ginEngine.Use(recoveryMiddleware.Recovery)
+	ginEngine.Use(rateLimitMiddleware.RateLimit)
 
 	v1 := ginEngine.Group("/v1")
 
