@@ -1,61 +1,77 @@
 package application
 
 import (
-	"first-project/src/bootstrap"
-	"first-project/src/exceptions"
+	"crypto/rsa"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// TODO: improve and use this logic in login
-type JwtService struct {
-	secretKey string
-	constants *bootstrap.Constants
+type JWTService struct {
+	privateKey *rsa.PrivateKey
+	publicKey  *rsa.PublicKey
 }
 
-func NewJwtService(secretKey string, constants *bootstrap.Constants) *JwtService {
-	return &JwtService{
-		secretKey: secretKey,
-		constants: constants,
+func NewJwtService(privateKeyPath, publicKeyPath string) *JWTService {
+	jwtService := &JWTService{}
+	jwtService.loadPrivateKey(privateKeyPath)
+	jwtService.loadPublicKey(publicKeyPath)
+	return jwtService
+}
+
+func (jwtService *JWTService) loadPrivateKey(privateKeyPath string) {
+	privKeyBytes, err := os.ReadFile(privateKeyPath)
+	if err != nil {
+		panic(err)
+	}
+	jwtService.privateKey, err = jwt.ParseRSAPrivateKeyFromPEM(privKeyBytes)
+	if err != nil {
+		panic(err)
 	}
 }
 
-func (jwtService *JwtService) CreateToken(email string) string {
-	expirationTime := time.Now().Add(time.Hour * 24).Unix()
+func (jwtService *JWTService) loadPublicKey(publicKeyPath string) {
+	publicKeyBytes, err := os.ReadFile(publicKeyPath)
+	if err != nil {
+		panic(err)
+	}
+	jwtService.publicKey, err = jwt.ParseRSAPublicKeyFromPEM(publicKeyBytes)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (jwtService *JWTService) GenerateJWT(username string) string {
 	claims := jwt.MapClaims{
-		"exp": expirationTime,
+		"iss": "test",
+		"sub": username,
+		"exp": time.Now().Add(time.Hour * 1).Unix(),
+		"iat": time.Now().Unix(),
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	jwtSecret := []byte(jwtService.secretKey)
-	tokenString, err := token.SignedString(jwtSecret)
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	tokenString, err := token.SignedString(jwtService.privateKey)
 	if err != nil {
 		panic(err)
 	}
 	return tokenString
 }
 
-func (jwtService *JwtService) VerifyToken(tokenString string) string {
-	var registrationError exceptions.UserRegistrationError
-
-	jwtSecret := []byte(jwtService.secretKey)
+func (jwtService *JWTService) VerifyToken(tokenString string) jwt.MapClaims {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return jwtSecret, nil
+		// if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+		//     return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		// }
+		return jwtService.publicKey, nil
 	})
 	if err != nil {
 		panic(err)
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		email := claims["email"].(string)
-		return email
+		return claims
 	}
-	registrationError.AppendError(
-		jwtService.constants.ErrorField.Email,
-		jwtService.constants.ErrorTag.InvalidToken)
-	panic(registrationError)
+	panic(fmt.Errorf("invalid token"))
 }
