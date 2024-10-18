@@ -112,7 +112,7 @@ func (userService *UserService) VerifyEmail(email string) {
 }
 
 func (userService *UserService) LoginService(username string, password string) {
-	hashedPassword, err := userService.userRepository.GetPasswordByUsername(username)
+	hashedPassword, err := userService.userRepository.GetPasswordByVerifiedUsername(username)
 	if err != nil {
 		loginError := exceptions.NewLoginError()
 		panic(loginError)

@@ -8,10 +8,11 @@
         "containsUppercase": "باید حتما دارای حرف بزرگ باشد.",
         "containsNumber": "باید حتما دارای عدد باشد.",
         "containsSpecialChar": "باید حتما دارای حروف خاص باشد.",
+        "notMatchConfirmPAssword": "رمزعیور با تکرار رمزعبور باید یکسان باشد.",
         "alreadyVerified": "کاربر قبلا احراز هویت شده است.",
         "expiredToken": "توکن شما منقضی شده است.",
         "invalidToken": "توکن شما اشتباه است.",
-        "notMatchConfirmPAssword": "نام کاربری یا رمزعبور صحیح نمیباشد.",
+        "loginFailed": "ورود ناموفق بود. لطفاً نام کاربری و رمز عبور خود را بررسی کنید و اطمینان حاصل کنید که حساب شما فعال شده است.",
         "emailNotExist": "ابتدا باید ثبت نام کنید."
     },
     "successMessage": {
