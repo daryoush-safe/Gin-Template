@@ -9,12 +9,12 @@
         "containsNumber": "The `{0}` should contain lowercase.",
         "containsSpecialChar": "The `{0}` should contain lowercase.",
         "notMatchConfirmPAssword": "password and confirm password are not match.",
-        
         "alreadyVerified": "User Already Verified.",
         "expiredToken": "Token is expired.",
         "invalidToken": "Token is invalid.",
         "loginFailed": "Login failed. Please check your username and password, and ensure your account is activated.",
-        "emailNotExist": "You should register first."
+        "emailNotExist": "You should register first.",
+        "rateLimitExceed": "Rate limit exceeded."
     },
     "successMessage": {
         "userRegistration": "Successfully! Please verify your Email to activate your account.",

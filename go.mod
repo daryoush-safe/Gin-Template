@@ -14,10 +14,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 )
 
-require (
-	github.com/go-sql-driver/mysql v1.7.0 // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
-)
+require golang.org/x/time v0.7.0 // indirect
 
 require (
 	github.com/bytedance/sonic v1.12.2 // indirect
