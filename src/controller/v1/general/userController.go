@@ -60,11 +60,11 @@ func (userController *UserController) sendActivationEmail(c *gin.Context, userna
 		email, "Activate account", "activateAccount/"+templatePath, templateData)
 }
 
-func (userController *UserController) sendResetPassEmail(c *gin.Context, email string) {
+func (userController *UserController) sendResetPassEmail(c *gin.Context, email, token string) {
 	templateData := struct {
 		ResetLink string
 	}{
-		ResetLink: "http://localhost:8080/v1/resetPassword",
+		ResetLink: "http://localhost:8080/v1/resetPassword?token=" + token,
 	}
 	templatePath := getTemplatePath(c, userController.constants.Context.Translator)
 	// you can also add constant value for subjects!
@@ -82,8 +82,8 @@ func (userController *UserController) Register(c *gin.Context) {
 	param := controller.Validated[registerParams](c, &userController.constants.Context)
 	userController.userService.VerifyUserRegistration(param.Username, param.Email, param.Password, param.ConfirmPassword)
 	otp := application.GenerateOTP()
-	userController.sendActivationEmail(c, param.Username, otp, param.Email)
 	userController.userService.RegisterUser(param.Username, param.Email, param.Password, otp)
+	userController.sendActivationEmail(c, param.Username, otp, param.Email)
 	setupResponse(c, userController.constants.Context.Translator, "successMessage.userRegistration")
 }
 
@@ -111,11 +111,12 @@ func (userController *UserController) Login(c *gin.Context) {
 
 func (userController *UserController) ForgotPassword(c *gin.Context) {
 	type forgotPasswordParams struct {
-		Email string `json:"email" validate:"required"`
+		Email string `json:"email" validate:"required,email"`
 	}
 	param := controller.Validated[forgotPasswordParams](c, &userController.constants.Context)
-	userController.userService.VerifyUserExist(param.Email)
-	userController.sendResetPassEmail(c, param.Email)
+	token := application.GenerateOTP()
+	userController.userService.ForgotPasswordService(param.Email, token)
+	userController.sendResetPassEmail(c, param.Email, token)
 	setupResponse(c, userController.constants.Context.Translator, "successMessage.forgotPassword")
 }
 
@@ -124,8 +125,10 @@ func (userController *UserController) ResetPassword(c *gin.Context) {
 		Email           string `json:"email" validate:"required"`
 		Password        string `json:"password" validate:"required"`
 		ConfirmPassword string `json:"confirmPassword" validate:"required"`
+		Token           string `form:"token" validate:"required"`
 	}
 	param := controller.Validated[resetPasswordParams](c, &userController.constants.Context)
-	userController.userService.ResetPasswordService(param.Email, param.Password, param.ConfirmPassword)
+	userController.otpService.VerifyOTP(param.Token, param.Email)
+	userController.userService.ResetPasswordService(param.Email, param.Password, param.ConfirmPassword, param.Token)
 	setupResponse(c, userController.constants.Context.Translator, "successMessage.resetPassword")
 }

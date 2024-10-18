@@ -32,10 +32,9 @@ type ErrorTag struct {
 	ContainsNumber          string
 	ContainsSpecialChar     string
 	NotMatchConfirmPAssword string
-	InvalidToken            string
 	AlreadyVerified         string
-	OTPExpired              string
-	InvalidOTP              string
+	ExpiredToken            string
+	InvalidToken            string
 	LoginFailed             string
 	EmailNotExist           string
 }
@@ -64,10 +63,9 @@ func NewConstants() *Constants {
 			ContainsNumber:          "containsNumber",
 			ContainsSpecialChar:     "containsSpecialChar",
 			NotMatchConfirmPAssword: "notMatchConfirmPAssword",
-			InvalidToken:            "invalidToken",
 			AlreadyVerified:         "alreadyVerified",
-			OTPExpired:              "expiredOTP",
-			InvalidOTP:              "invalidOTP",
+			ExpiredToken:            "expiredToken",
+			InvalidToken:            "invalidToken",
 			LoginFailed:             "loginFailed",
 			EmailNotExist:           "emailNotExist",
 		},

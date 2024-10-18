@@ -64,7 +64,7 @@ func (repo *UserRepository) registerNewUser(username string, email string, passw
 		Name:     username,
 		Email:    email,
 		Password: password,
-		OTP:      otp,
+		Token:    otp,
 		Verified: false,
 	}
 	result := repo.db.Create(&user)
@@ -73,9 +73,23 @@ func (repo *UserRepository) registerNewUser(username string, email string, passw
 	}
 }
 
-func (repo *UserRepository) updateUserRegistration(user entities.User, otp string) {
-	user.OTP = otp
+func (repo *UserRepository) updateUserToken(user entities.User, token string) {
+	user.Token = token
 	repo.db.Save(&user)
+}
+
+func (repo *UserRepository) ForgotPassword(email string, token string) bool {
+	var user entities.User
+
+	result := repo.db.Where("email = ? AND verified = ?", email, true).First(&user)
+	if result.Error == nil {
+		repo.updateUserToken(user, token)
+	} else if result.Error == gorm.ErrRecordNotFound {
+		return false
+	} else {
+		panic(result.Error)
+	}
+	return true
 }
 
 func (repo *UserRepository) RegisterUser(username string, email string, password string, otp string) {
@@ -83,7 +97,7 @@ func (repo *UserRepository) RegisterUser(username string, email string, password
 
 	result := repo.db.Where("email = ? AND verified = ?", email, false).First(&user)
 	if result.Error == nil {
-		repo.updateUserRegistration(user, otp)
+		repo.updateUserToken(user, otp)
 	} else if result.Error == gorm.ErrRecordNotFound {
 		repo.registerNewUser(username, email, password, otp)
 	} else {
@@ -97,7 +111,7 @@ func (repo *UserRepository) GetOTPByEmail(email string) (string, time.Time) {
 	if result.Error != nil {
 		panic(result.Error)
 	}
-	return user.OTP, user.UpdatedAt
+	return user.Token, user.UpdatedAt
 }
 
 func (repo *UserRepository) VerifyEmail(email string) {
@@ -107,7 +121,7 @@ func (repo *UserRepository) VerifyEmail(email string) {
 		panic(result.Error)
 	}
 	user.Verified = true
-	user.OTP = ""
+	user.Token = ""
 	if err := repo.db.Save(&user).Error; err != nil {
 		panic(err)
 	}
@@ -133,5 +147,6 @@ func (repo *UserRepository) UpdatePasswordByEmail(email, password string) {
 		panic(result.Error)
 	}
 	user.Password = password
+	user.Token = ""
 	repo.db.Save(&user)
 }

@@ -107,17 +107,6 @@ func (userService *UserService) VerifyUserNotExist(email string) {
 	}
 }
 
-func (userService *UserService) VerifyUserExist(email string) {
-	var registrationError exceptions.UserRegistrationError
-	alreadyVerified := userService.userRepository.CheckEmailExists(email)
-	if !alreadyVerified {
-		registrationError.AppendError(
-			userService.constants.ErrorField.Email,
-			userService.constants.ErrorTag.EmailNotExist)
-		panic(registrationError)
-	}
-}
-
 func (userService *UserService) VerifyEmail(email string) {
 	userService.userRepository.VerifyEmail(email)
 }
@@ -135,7 +124,18 @@ func (userService *UserService) LoginService(username string, password string) {
 	}
 }
 
-func (userService *UserService) ResetPasswordService(email, password, confirmPassword string) {
+func (userService *UserService) ForgotPasswordService(email, token string) {
+	var registrationError exceptions.UserRegistrationError
+	ok := userService.userRepository.ForgotPassword(email, token)
+	if !ok {
+		registrationError.AppendError(
+			userService.constants.ErrorField.Email,
+			userService.constants.ErrorTag.EmailNotExist)
+		panic(registrationError)
+	}
+}
+
+func (userService *UserService) ResetPasswordService(email, password, confirmPassword, token string) {
 	var registrationError exceptions.UserRegistrationError
 	passwordErrorTags := userService.passwordValidation(password)
 	if len(passwordErrorTags) > 0 {
