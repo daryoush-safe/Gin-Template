@@ -5,6 +5,7 @@ import (
 	application_communication "first-project/src/application/communication/emailService"
 	"first-project/src/bootstrap"
 	"first-project/src/controller"
+	"first-project/src/jwt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +15,6 @@ type UserController struct {
 	userService  *application.UserService
 	otpService   *application.OTPService
 	emailService *application_communication.EmailService
-	jwtService   *application.JWTService
 }
 
 func NewUserController(
@@ -22,14 +22,12 @@ func NewUserController(
 	userService *application.UserService,
 	otpService *application.OTPService,
 	emailService *application_communication.EmailService,
-	jwtService *application.JWTService,
 ) *UserController {
 	return &UserController{
 		constants:    constants,
 		userService:  userService,
 		otpService:   otpService,
 		emailService: emailService,
-		jwtService:   jwtService,
 	}
 }
 
@@ -102,25 +100,14 @@ func (userController *UserController) VerifyEmail(c *gin.Context) {
 	setupResponse(c, userController.constants.Context.Translator, "successMessage.emailVerification", nil)
 }
 
-func (userController *UserController) setupJWTKeys(c *gin.Context, privateKeyPath, publicKeyPath string) {
-	_, exists := c.Get(userController.constants.Context.IsLoadedJWTPrivateKey)
-	if !exists {
-		jwtService := application.NewJwtService(privateKeyPath, publicKeyPath)
-		userController.jwtService = jwtService
-		c.Set(userController.constants.Context.IsLoadedJWTPrivateKey, true)
-	}
-}
-
 func (userController *UserController) Login(c *gin.Context) {
 	type loginParams struct {
 		Username string `json:"username" validate:"required"`
 		Password string `json:"password" validate:"required"`
 	}
 	param := controller.Validated[loginParams](c, &userController.constants.Context)
-	userController.setupJWTKeys(c, "./jwtKeys/privateKey.pem", "./jwtKeys/publicKey.pem")
-	userController.jwtService.GenerateJWT(param.Username)
 	userController.userService.LoginService(param.Username, param.Password)
-	jwtString := userController.jwtService.GenerateJWT(param.Username)
+	jwtString := jwt.GenerateJWT(c, "./jwtKeys", userController.constants.Context.IsLoadedJWTPrivateKey, param.Username)
 	setupResponse(c, userController.constants.Context.Translator, "successMessage.login", jwtString)
 }
 
