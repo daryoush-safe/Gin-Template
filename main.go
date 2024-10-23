@@ -8,8 +8,11 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
+	"first-project/src/application"
+	application_communication "first-project/src/application/communication/emailService"
 	"first-project/src/bootstrap"
 	"first-project/src/entities"
+	"first-project/src/repository"
 	"first-project/src/routes"
 )
 
@@ -32,6 +35,11 @@ func main() {
 		log.Fatal("Application cannot connect to database")
 	}
 	db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&entities.User{}, &entities.Password{})
+
+	userRepository := repository.NewUserRepository(db)
+	emailService := application_communication.NewEmailService(&di.Env.Email)
+	cronJob := application.NewCronJob(userRepository, emailService)
+	cronJob.RunCronJob()
 
 	routes.Run(ginEngine, di, db)
 

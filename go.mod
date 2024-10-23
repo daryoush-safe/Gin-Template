@@ -14,7 +14,10 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 )
 
-require golang.org/x/time v0.7.0 // indirect
+require (
+	github.com/robfig/cron/v3 v3.0.1 // indirect
+	golang.org/x/time v0.7.0 // indirect
+)
 
 require (
 	github.com/bytedance/sonic v1.12.2 // indirect

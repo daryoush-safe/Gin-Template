@@ -2,6 +2,7 @@ package repository
 
 import (
 	"first-project/src/entities"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -85,4 +86,13 @@ func (repo *UserRepository) UpdateUserPassword(user entities.User, password stri
 	user.Password = password
 	user.Token = ""
 	repo.db.Save(&user)
+}
+
+func (repo *UserRepository) FindUnverifiedUsersBeforeDate(date time.Time) []entities.User {
+	var users []entities.User
+	err := repo.db.Where("verified = ? AND created_at <= ?", false, date).Find(&users).Error
+	if err != nil {
+		panic(err)
+	}
+	return users
 }
