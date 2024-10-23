@@ -2,24 +2,11 @@ package application
 
 import (
 	"crypto/rand"
-	"first-project/src/bootstrap"
+	"first-project/src/entities"
 	"first-project/src/exceptions"
-	"first-project/src/repository"
 	"io"
 	"time"
 )
-
-type OTPService struct {
-	constants      *bootstrap.Constants
-	userRepository *repository.UserRepository
-}
-
-func NewOTPService(constants *bootstrap.Constants, userRepository *repository.UserRepository) *OTPService {
-	return &OTPService{
-		constants:      constants,
-		userRepository: userRepository,
-	}
-}
 
 const otpLength = 6
 
@@ -37,20 +24,20 @@ func GenerateOTP() string {
 	return string(otp)
 }
 
-func (otpService *OTPService) VerifyOTP(inputOTP string, email string) {
+func VerifyOTP(
+	user entities.User, email, inputOTP, otpFieldError, expiredTokenTagError, invalidTokenTagError string) {
 	var registrationError exceptions.UserRegistrationError
-	otp, lastSentOtp := otpService.userRepository.GetOTPByEmail(email)
 
-	if time.Since(lastSentOtp) > 20*time.Minute {
+	if time.Since(user.UpdatedAt) > 20*time.Minute {
 		registrationError.AppendError(
-			otpService.constants.ErrorField.OTP,
-			otpService.constants.ErrorTag.ExpiredToken)
+			otpFieldError,
+			expiredTokenTagError)
 		panic(registrationError)
 	}
-	if inputOTP != otp {
+	if inputOTP != user.Token {
 		registrationError.AppendError(
-			otpService.constants.ErrorField.OTP,
-			otpService.constants.ErrorTag.InvalidToken)
+			otpFieldError,
+			invalidTokenTagError)
 		panic(registrationError)
 	}
 }

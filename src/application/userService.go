@@ -50,18 +50,18 @@ func (userService *UserService) passwordValidation(password string) []string {
 	return errors
 }
 
-func (userService *UserService) VerifyUserRegistration(username string, email string, password string, confirmPassword string) {
+func (userService *UserService) ValidateUserRegistrationDetails(
+	username string, email string, password string, confirmPassword string) {
 	var registrationError exceptions.UserRegistrationError
 	isRegError := false
-	usernameExist := userService.userRepository.CheckUsernameExists(username)
+	_, usernameExist := userService.userRepository.FindByUsernameAndVerified(username, true)
 	if usernameExist {
 		isRegError = true
-		// maybe adding translates here but I was not agreed
 		registrationError.AppendError(
 			userService.constants.ErrorField.Username,
 			userService.constants.ErrorTag.AlreadyExist)
 	}
-	emailExist := userService.userRepository.CheckEmailExists(email)
+	_, emailExist := userService.userRepository.FindByEmailAndVerified(email, true)
 	if emailExist {
 		isRegError = true
 		registrationError.AppendError(
@@ -75,7 +75,6 @@ func (userService *UserService) VerifyUserRegistration(username string, email st
 			registrationError.AppendError(userService.constants.ErrorField.Password, v)
 		}
 	}
-
 	if confirmPassword != password {
 		isRegError = true
 		registrationError.AppendError(
@@ -88,46 +87,56 @@ func (userService *UserService) VerifyUserRegistration(username string, email st
 	}
 }
 
-func (userService *UserService) RegisterUser(username string, email string, password string, otp string) {
-	hashedPassword, err := hashPassword(password)
-	if err != nil {
-		panic(err)
+func (userService *UserService) UpdateOrCreateUser(username string, email string, password string, otp string) {
+	user, notVerifiedUserExist := userService.userRepository.FindByUsernameAndVerified(username, false)
+	if notVerifiedUserExist {
+		userService.userRepository.UpdateUserToken(user, otp)
+	} else {
+		hashedPassword, err := hashPassword(password)
+		if err != nil {
+			panic(err)
+		}
+		userService.userRepository.CreateNewUser(username, email, hashedPassword, otp, false)
 	}
-	userService.userRepository.RegisterUser(username, email, hashedPassword, otp)
 }
 
-func (userService *UserService) VerifyUserNotExist(email string) {
+func (userService *UserService) ActivateUser(email, otp string) {
 	var registrationError exceptions.UserRegistrationError
-	alreadyVerified := userService.userRepository.CheckEmailExists(email)
-	if alreadyVerified {
+	_, verifiedUserExist := userService.userRepository.FindByEmailAndVerified(email, true)
+	if verifiedUserExist {
 		registrationError.AppendError(
 			userService.constants.ErrorField.Email,
 			userService.constants.ErrorTag.AlreadyVerified)
 		panic(registrationError)
 	}
+
+	user, _ := userService.userRepository.FindByEmailAndVerified(email, false)
+	VerifyOTP(
+		user, email, otp,
+		userService.constants.ErrorField.OTP,
+		userService.constants.ErrorTag.ExpiredToken,
+		userService.constants.ErrorTag.InvalidToken)
+
+	userService.userRepository.ActivateUserAccount(user)
 }
 
-func (userService *UserService) VerifyEmail(email string) {
-	userService.userRepository.VerifyEmail(email)
-}
-
-func (userService *UserService) LoginService(username string, password string) {
-	hashedPassword, err := userService.userRepository.GetPasswordByVerifiedUsername(username)
-	if err != nil {
+func (userService *UserService) VerifyLogin(username string, password string) {
+	user, verifiedUserExist := userService.userRepository.FindByUsernameAndVerified(username, true)
+	if !verifiedUserExist {
 		loginError := exceptions.NewLoginError()
 		panic(loginError)
 	}
-	passwordMatch := verifyPassword(hashedPassword, password)
+	passwordMatch := verifyPassword(user.Password, password)
 	if !passwordMatch {
 		loginError := exceptions.NewLoginError()
 		panic(loginError)
 	}
 }
 
-func (userService *UserService) ForgotPasswordService(email, token string) {
+func (userService *UserService) VerifyUserActivated(email string) {
 	var registrationError exceptions.UserRegistrationError
-	ok := userService.userRepository.ForgotPassword(email, token)
-	if !ok {
+	_, verifiedUserExist := userService.userRepository.FindByEmailAndVerified(email, true)
+	if !verifiedUserExist {
 		registrationError.AppendError(
 			userService.constants.ErrorField.Email,
 			userService.constants.ErrorTag.EmailNotExist)
@@ -135,7 +144,7 @@ func (userService *UserService) ForgotPasswordService(email, token string) {
 	}
 }
 
-func (userService *UserService) ResetPasswordService(email, password, confirmPassword, token string) {
+func (userService *UserService) ResetPasswordService(email, password, confirmPassword string) {
 	var registrationError exceptions.UserRegistrationError
 	passwordErrorTags := userService.passwordValidation(password)
 	if len(passwordErrorTags) > 0 {
@@ -155,5 +164,7 @@ func (userService *UserService) ResetPasswordService(email, password, confirmPas
 	if err != nil {
 		panic(err)
 	}
-	userService.userRepository.UpdatePasswordByEmail(email, hashedPassword)
+
+	user, _ := userService.userRepository.FindByEmailAndVerified(email, true)
+	userService.userRepository.UpdateUserPassword(user, hashedPassword)
 }

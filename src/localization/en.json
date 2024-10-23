@@ -20,7 +20,7 @@
         "userRegistration": "Successfully! Please verify your Email to activate your account.",
         "emailVerification": "Email Verified.",
         "login": "Login Successfully.",
-        "forgotPassword": "Please check your email to reset your password.",
+        "forgotPassword": "You can change Your Password.",
         "resetPassword": "Password reset Successfully."
     }
 }
